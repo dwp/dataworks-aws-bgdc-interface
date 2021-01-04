@@ -87,4 +87,29 @@ locals {
     production  = "aurora"
   }
 
+  component = "bgdc"
+
+  bgdc_log_level = {
+    development = "DEBUG"
+    qa          = "DEBUG"
+    integration = "DEBUG"
+    preprod     = "INFO"
+    production  = "INFO"
+  }
+
+  bgdc_version = {
+    development = "0.0.1"
+    qa          = "0.0.1"
+    integration = "0.0.1"
+    preprod     = "0.0.1"
+    production  = "0.0.1"
+  }
+
+  cw_agent_namespace                   = "/app/bgdc"
+  cw_agent_log_group_name              = "/app/bgdc"
+  cw_agent_bootstrap_loggrp_name       = "/app/bgdc/bootstrap_actions"
+  cw_agent_steps_loggrp_name           = "/app/bgdc/step_logs"
+  cw_agent_yarnspark_loggrp_name       = "/app/bgdc/yarn-spark_logs"
+  cw_agent_metrics_collection_interval = 60
+
 }

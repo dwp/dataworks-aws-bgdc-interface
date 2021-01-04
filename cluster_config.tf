@@ -37,16 +37,17 @@ resource "aws_s3_bucket_object" "instances" {
   )
 }
 
-#resource "aws_s3_bucket_object" "steps" {
-#  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-#  key    = "emr/bgdc/steps.yaml"
-#  content = templatefile("${path.module}/cluster_config/steps.yaml.tpl",
-#    {
-#      s3_config_bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
-#      action_on_failure = local.step_fail_action[local.environment]
-#    }
-#  )
-#}
+resource "aws_s3_bucket_object" "steps" {
+  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
+  key    = "emr/bgdc/steps.yaml"
+  content = templatefile("${path.module}/cluster_config/steps.yaml.tpl",
+    {
+      s3_config_bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
+      action_on_failure = local.step_fail_action[local.environment]
+      component         = local.component
+    }
+  )
+}
 
 # See https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/
 locals {
