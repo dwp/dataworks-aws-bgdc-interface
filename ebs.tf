@@ -128,7 +128,7 @@ resource "aws_kms_key" "bgdc_ebs_cmk" {
   policy                  = data.aws_iam_policy_document.bgdc_ebs_cmk.json
 
 
-  # ProtectsSensitiveData = "True" - the ADG cluster decrypts sensitive data
+  # ProtectsSensitiveData = "True" - the BGDC cluster decrypts sensitive data
   # that it reads from HBase. It can potentially spill this to disk if it can't
   # hold it all in memory, which is likely given the size of the dataset.
   tags = merge(
