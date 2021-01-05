@@ -11,7 +11,7 @@ resource "aws_s3_bucket_object" "emr_setup_sh" {
   content = templatefile("${path.module}/bootstrap_actions/emr-setup.sh",
     {
       VERSION                         = local.bgdc_version[local.environment]
-      BGDC_LOG_LEVEL                   = local.bgdc_log_level[local.environment]
+      BGDC_LOG_LEVEL                  = local.bgdc_log_level[local.environment]
       ENVIRONMENT_NAME                = local.environment
       S3_COMMON_LOGGING_SHELL         = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, data.terraform_remote_state.common.outputs.application_logging_common_file.s3_id)
       S3_LOGGING_SHELL                = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.logging_script.key)
