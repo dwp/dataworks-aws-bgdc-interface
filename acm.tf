@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "bgdc_interface" {
   certificate_authority_arn = data.terraform_remote_state.aws_certificate_authority.outputs.root_ca.arn
-  domain_name               = "bgdc_interface.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
+  domain_name               = "bgdc-interface.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
 
   options {
     certificate_transparency_logging_preference = "ENABLED"
