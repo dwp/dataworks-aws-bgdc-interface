@@ -46,6 +46,7 @@ meta:
           args:
             - -exc
             - |
+              export TF_VAR_emr_ami_id=$(cat ../emr-ami/id)
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
@@ -55,6 +56,7 @@ meta:
         inputs:
           - name: dataworks-aws-bgdc-interface
           - name: terraform-bootstrap
+          - name: emr-ami
     terraform-plan:
       task: terraform-plan
       .: (( inject meta.plan.terraform-common-config ))
@@ -64,6 +66,7 @@ meta:
           args:
             - -exc
             - |
+              export TF_VAR_emr_ami_id=$(cat ../emr-ami/id)
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
@@ -72,6 +75,7 @@ meta:
         inputs:
           - name: dataworks-aws-bgdc-interface
           - name: terraform-bootstrap
+          - name: emr-ami
       params:
         DETAILED_EXITCODE: -detailed-exitcode
 
