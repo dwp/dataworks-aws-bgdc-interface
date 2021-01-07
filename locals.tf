@@ -109,4 +109,6 @@ locals {
   cw_agent_steps_loggrp_name           = "/app/bgdc/step_logs"
   cw_agent_yarnspark_loggrp_name       = "/app/bgdc/yarn-spark_logs"
   cw_agent_metrics_collection_interval = 60
+
+  emr_config_s3_prefix = "emr/bgdc"
 }
