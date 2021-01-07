@@ -30,6 +30,15 @@ resource "aws_lambda_function" "bgdc_emr_launcher" {
       EMR_LAUNCHER_LOG_LEVEL        = "debug"
     }
   }
+  tags = merge(
+    local.common_tags,
+    {
+      Name                  = "bgdc_emr_launcher"
+      ProtectsSensitiveData = "False"
+      Version               = var.emr_launcher_zip["version"]
+    },
+  )
+  depends_on = [aws_cloudwatch_log_group.bgdc_emr_launcher]
 }
 
 resource "aws_iam_role" "bgdc_emr_launcher_lambda_role" {
@@ -156,4 +165,10 @@ data "aws_iam_policy_document" "bgdc_emr_launcher_getsecrets" {
 resource "aws_iam_role_policy_attachment" "bgdc_emr_launcher_getsecrets" {
   role       = aws_iam_role.bgdc_emr_launcher_lambda_role.name
   policy_arn = aws_iam_policy.bgdc_emr_launcher_getsecrets.arn
+}
+
+resource "aws_cloudwatch_log_group" "bgdc_emr_launcher" {
+  name              = "/aws/lambda/bgdc_emr_launcher"
+  retention_in_days = 180
+  tags              = local.common_tags
 }
