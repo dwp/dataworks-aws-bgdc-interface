@@ -89,7 +89,7 @@ resource "aws_s3_bucket_object" "configurations" {
       spark_executor_instances            = local.spark_executor_instances
       spark_default_parallelism           = local.spark_default_parallelism
       spark_kyro_buffer                   = local.spark_kyro_buffer
-      hive_metastore_username             = var.metadata_store_bgdc_username
+      hive_metastore_username             = local.metadata_store_bgdc_username
       hive_metastore_secret_name          = local.hive_metastore_secret_name
       hive_metastore_endpoint             = data.terraform_remote_state.adg.outputs.hive_metastore.rds_cluster.endpoint
       hive_metastore_database_name        = data.terraform_remote_state.adg.outputs.hive_metastore.rds_cluster.database_name

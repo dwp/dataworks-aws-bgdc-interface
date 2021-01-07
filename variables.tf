@@ -77,11 +77,6 @@ variable "emr_yarn_memory_gb_per_core_instance" {
   }
 }
 
-variable "metadata_store_bgdc_username" {
-  description = "Username for metadata store reader BGDC user"
-  default     = "bgdc"
-}
-
 variable "truststore_aliases" {
   description = "comma seperated truststore aliases"
   type        = list(string)
