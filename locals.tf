@@ -77,8 +77,6 @@ locals {
   endpoint_services    = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages"]
   no_proxy             = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
 
-  hive_metastore_secret_name = "metadata-store-${var.metadata_store_bgdc_username}"
-
   hive_metastore_backend = {
     development = "aurora"
     qa          = "aurora"
@@ -111,5 +109,4 @@ locals {
   cw_agent_steps_loggrp_name           = "/app/bgdc/step_logs"
   cw_agent_yarnspark_loggrp_name       = "/app/bgdc/yarn-spark_logs"
   cw_agent_metrics_collection_interval = 60
-
 }

@@ -13,6 +13,7 @@ meta:
           TF_CLI_ARGS_apply: -lock-timeout=300s
           TF_CLI_ARGS_plan: -lock-timeout=300s
           TF_VAR_costcode: ((dataworks.costcode))
+
     terraform-bootstrap:
       task: terraform-bootstrap
       config:
@@ -37,6 +38,7 @@ meta:
           - name: terraform-bootstrap
       params:
         AWS_REGION: eu-west-2
+
     terraform-apply:
       task: terraform-apply
       .: (( inject meta.plan.terraform-common-config ))
@@ -57,6 +59,7 @@ meta:
           - name: dataworks-aws-bgdc-interface
           - name: terraform-bootstrap
           - name: emr-ami
+
     terraform-plan:
       task: terraform-plan
       .: (( inject meta.plan.terraform-common-config ))
@@ -78,4 +81,3 @@ meta:
           - name: emr-ami
       params:
         DETAILED_EXITCODE: -detailed-exitcode
-
