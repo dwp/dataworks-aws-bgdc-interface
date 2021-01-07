@@ -17,6 +17,10 @@ bootstrap: ## Bootstrap local environment for first use
 		export AWS_PROFILE=$(aws_profile); \
 		export AWS_REGION=$(aws_region); \
 		python3 bootstrap_terraform.py; \
+		for github_repository in emr-launcher; do \
+			export REPO=$${github_repository}; \
+			./get_lambda_release.sh; \
+		done \
 	}
 	terraform fmt -recursive
 

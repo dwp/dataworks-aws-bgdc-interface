@@ -5,7 +5,7 @@ resource "aws_emr_security_configuration" "ebs_emrfs_em" {
 
 resource "aws_s3_bucket_object" "cluster" {
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "emr/bgdc/cluster.yaml"
+  key    = "${local.emr_config_s3_prefix}/cluster.yaml"
   content = templatefile("${path.module}/cluster_config/cluster.yaml.tpl",
     {
       s3_log_bucket          = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
@@ -21,7 +21,7 @@ resource "aws_s3_bucket_object" "cluster" {
 
 resource "aws_s3_bucket_object" "instances" {
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "emr/bgdc/instances.yaml"
+  key    = "${local.emr_config_s3_prefix}/instances.yaml"
   content = templatefile("${path.module}/cluster_config/instances.yaml.tpl",
     {
       keep_cluster_alive  = local.keep_cluster_alive[local.environment]
@@ -39,7 +39,7 @@ resource "aws_s3_bucket_object" "instances" {
 
 resource "aws_s3_bucket_object" "steps" {
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "emr/bgdc/steps.yaml"
+  key    = "${local.emr_config_s3_prefix}/steps.yaml"
   content = templatefile("${path.module}/cluster_config/steps.yaml.tpl",
     {
       s3_config_bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
@@ -66,7 +66,7 @@ locals {
 
 resource "aws_s3_bucket_object" "configurations" {
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "emr/bgdc/configurations.yaml"
+  key    = "${local.emr_config_s3_prefix}/configurations.yaml"
   content = templatefile("${path.module}/cluster_config/configurations.yaml.tpl",
     {
       s3_log_bucket                       = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
