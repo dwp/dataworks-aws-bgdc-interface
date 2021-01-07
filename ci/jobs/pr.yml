@@ -5,6 +5,7 @@ jobs:
         trigger: true
         version: every
       - get: emr-ami
+      - get: emr-launcher-release
       - put: dataworks-aws-bgdc-interface-pr
         params:
           path: dataworks-aws-bgdc-interface-pr
