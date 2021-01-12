@@ -9,4 +9,15 @@ groups:
   - name: pull-request
     jobs:
       - dataworks-aws-bgdc-interface-pr
-
+  - name: start-stop-cluster
+    jobs:
+      - start-cluster-development
+      - start-cluster-qa
+      - start-cluster-integration
+      - start-cluster-preprod
+      - start-cluster-production
+      - stop-cluster-development
+      - stop-cluster-qa
+      - stop-cluster-integration
+      - stop-cluster-preprod
+      - stop-cluster-production
