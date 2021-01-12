@@ -85,3 +85,65 @@ meta:
           - name: emr-launcher-release
       params:
         DETAILED_EXITCODE: -detailed-exitcode
+
+    start-cluster:
+      task: start-cluster
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.docker_awscli_repository))
+            version: ((dataworks.docker_awscli_version))
+            tag: ((dataworks.docker_awscli_version))
+        params:
+          AWS_ROLE_ARN: arn:aws:iam::((aws_account.development)):role/ci
+          AWS_REGION: ((dataworks.aws_region))
+          AWS_DEFAULT_REGION: ((dataworks.aws_region))
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              source /assume-role
+              set +x
+              ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
+              ID_COUNT=$(echo "$ID" | wc -l | sed s/" "//g)
+              if [[ $ID_COUNT != 0 ]]; then
+                echo "Error: one or more clusters already running"
+                exit 1
+              else
+                aws lambda invoke --function-name bgdc_emr_launcher --invocation-type RequestResponse --cli-connect-timeout 600 --cli-read-timeout 600 output.json
+                cat output.json | jq -eC "if .errorMessage? then error(.errorMessage) else true end"
+              fi
+
+    stop-cluster:
+      task: stop-cluster
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.docker_awscli_repository))
+            version: ((dataworks.docker_awscli_version))
+            tag: ((dataworks.docker_awscli_version))
+        params:
+          AWS_ROLE_ARN: arn:aws:iam::((aws_account.development)):role/ci
+          AWS_REGION: ((dataworks.aws_region))
+          AWS_DEFAULT_REGION: ((dataworks.aws_region))
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              source /assume-role
+              set +x
+              ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
+              ID_COUNT=$(echo "$ID" | wc -l | sed s/" "//g)
+              if [[ $ID_COUNT != 1 ]]; then
+                echo "Error: more or fewer than exactly 1 cluster identified"
+                exit 1
+              else
+                echo "Terminating cluster $ID"
+              aws emr terminate-clusters --cluster-ids $(echo $ID | sed s/'"'//g)
+              fi
