@@ -46,7 +46,7 @@ locals {
   }
 
   common_tags = {
-    {%- for key, value in common_tags.items() %}
+    {%- for key, value in common_tags_bgdc.items() %}
       {{key}} = "{{value}}"
     {%- endfor %}
     Environment  = local.environment
