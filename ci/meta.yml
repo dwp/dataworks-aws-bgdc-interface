@@ -109,7 +109,7 @@ meta:
               set +x
               ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
               ID_COUNT=$(echo "$ID" | wc -l | sed s/" "//g)
-              if [[ $ID_COUNT != 0 ]]; then
+              if [[ ! -z "$ID" ]] ; then
                 echo "Error: one or more clusters already running"
                 exit 1
               else
