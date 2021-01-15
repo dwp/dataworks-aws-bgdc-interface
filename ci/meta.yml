@@ -108,8 +108,7 @@ meta:
               source /assume-role
               set +x
               ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
-              ID_COUNT=$(echo "$ID" | wc -l | sed s/" "//g)
-              if [[ $ID_COUNT != 0 ]]; then
+              if [[ ! -z "$ID" ]] ; then
                 echo "Error: one or more clusters already running"
                 exit 1
               else
@@ -140,8 +139,11 @@ meta:
               set +x
               ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
               ID_COUNT=$(echo "$ID" | wc -l | sed s/" "//g)
-              if [[ $ID_COUNT != 1 ]]; then
-                echo "Error: more or fewer than exactly 1 cluster identified"
+              if [[ ! -z "$ID" ]] ; then
+                echo "Error: no clusters running"
+                exit 1
+              elif [[ $ID_COUNT != 1 ]]; then
+                echo "Error: more than 1 cluster identified"
                 exit 1
               else
                 echo "Terminating cluster $ID"
