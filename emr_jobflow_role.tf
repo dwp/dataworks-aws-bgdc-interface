@@ -142,7 +142,7 @@ data "aws_iam_policy_document" "bgdc_interface_config" {
 resource "aws_iam_policy" "bgdc_interface_read_config" {
   name        = "BGDCInterfaceReadConfig"
   description = "Allow reading of BGD Interface config files"
-  policy      = data.aws_iam_policy_document.bgdc_interface_read_config.json
+  policy      = data.aws_iam_policy_document.bgdc_interface_config.json
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_read_config" {
