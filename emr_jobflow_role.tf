@@ -87,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "bgdc_interface_write_logs" {
   policy_arn = aws_iam_policy.bgdc_interface_write_logs.arn
 }
 
-data "aws_iam_policy_document" "bgdc_interface_read_config" {
+data "aws_iam_policy_document" "bgdc_interface_config" {
   statement {
     effect = "Allow"
 
@@ -110,6 +110,18 @@ data "aws_iam_policy_document" "bgdc_interface_read_config" {
 
     resources = [
       "${data.terraform_remote_state.common.outputs.config_bucket.arn}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject*",
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.common.outputs.config_bucket.arn}/component/bgdc/*",
     ]
   }
 
