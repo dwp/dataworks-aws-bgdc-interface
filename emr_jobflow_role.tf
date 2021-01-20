@@ -216,6 +216,7 @@ data "aws_iam_policy_document" "bgdc_interface_read_dynamodb" {
       "dynamodb:GetShardIterator",
       "dynamodb:Query",
       "dynamodb:Scan",
+      "dynamodb:DescribeTable",
     ]
 
     resources = [
