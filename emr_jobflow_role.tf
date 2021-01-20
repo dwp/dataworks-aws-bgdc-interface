@@ -129,8 +129,11 @@ data "aws_iam_policy_document" "bgdc_interface_config" {
     effect = "Allow"
 
     actions = [
-      "kms:Decrypt",
       "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
     ]
 
     resources = [
@@ -213,6 +216,7 @@ data "aws_iam_policy_document" "bgdc_interface_read_dynamodb" {
       "dynamodb:GetShardIterator",
       "dynamodb:Query",
       "dynamodb:Scan",
+      "dynamodb:DescribeTable",
     ]
 
     resources = [
