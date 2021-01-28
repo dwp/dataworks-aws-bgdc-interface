@@ -24,8 +24,6 @@
     <value>hdfs://placeholder:8020</value>
   </property>
 
-
-
   <property>
     <name>hadoop.security.authentication</name>
     <value>simple</value>
@@ -46,12 +44,6 @@
     <name>hadoop.security.token.service.use_ip</name>
     <value>true</value>
   </property>
-
-
-
-
-
-
 
   <property>
     <name>hadoop.proxyuser.hive.hosts</name>
@@ -107,8 +99,6 @@
     <value>*</value>
   </property>
 
-
-
   <property>
     <name>io.compression.codecs</name>
     <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,org.apache.hadoop.io.compress.SnappyCodec,com.hadoop.compression.lzo.LzoCodec,com.hadoop.compression.lzo.LzopCodec</value>
@@ -119,26 +109,21 @@
     <value>com.hadoop.compression.lzo.LzoCodec</value>
   </property>
 
-
-
-
-
-
   <property>
     <name>fs.s3.buffer.dir</name>
     <value>/mnt/s3</value>
     <final>true</final>
   </property>
 
-<property>
-  <name>fs.s3.impl</name>
-  <value>com.amazon.ws.emr.hadoop.fs.EmrFileSystem</value>
-</property>
+  <property>
+    <name>fs.s3.impl</name>
+    <value>com.amazon.ws.emr.hadoop.fs.EmrFileSystem</value>
+  </property>
 
-<property>
-  <name>fs.s3n.impl</name>
-  <value>com.amazon.ws.emr.hadoop.fs.EmrFileSystem</value>
-</property>
+  <property>
+    <name>fs.s3n.impl</name>
+    <value>com.amazon.ws.emr.hadoop.fs.EmrFileSystem</value>
+  </property>
 
   <property>
     <name>hadoop.security.key.provider.path</name>
@@ -204,8 +189,5 @@
     <name>fs.s3bfs.impl</name>
     <value>org.apache.hadoop.fs.s3.S3FileSystem</value>
   </property>
-
-
-
 
 </configuration>

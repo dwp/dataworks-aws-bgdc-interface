@@ -18,9 +18,6 @@
 
 <configuration>
 
-
-
-
   <property>
     <name>mapreduce.jobhistory.address</name>
     <value>placeholder:10020</value>

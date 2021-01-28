@@ -48,7 +48,6 @@
     <value>hdfs://placeholder:8020</value>
   </property>
 
-
   <property>
     <name>hive.metastore.uris</name>
     <value>thrift://placeholder:9083</value>
@@ -103,8 +102,6 @@
    <name>hive.security.metastore.authorization.manager</name>
    <value>org.apache.hadoop.hive.ql.security.authorization.StorageBasedAuthorizationProvider</value>
 </property>
-
-
 
 <property>
   <name>hive.optimize.ppd.input.formats</name>
