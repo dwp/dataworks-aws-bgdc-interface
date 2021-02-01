@@ -86,6 +86,33 @@ meta:
       params:
         DETAILED_EXITCODE: -detailed-exitcode
 
+    terraform-output-management:
+      task: terraform-output-management
+      .: (( inject meta.plan.terraform-common-config ))
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.terraform_repository))
+            version: ((dataworks.terraform_version))
+            tag: ((dataworks.terraform_version))
+        params:
+          TF_WORKSPACE: management
+        run:
+          path: sh
+          dir: aws-management-infrastructure
+          args:
+            - -exc
+            - |
+              terraform init
+              terraform workspace show
+              terraform output --json > ../terraform-output-management/outputs.json
+        inputs:
+          - name: aws-management-infrastructure
+        outputs:
+          - name: terraform-output-management
+
     start-cluster:
       task: start-cluster
       config:
@@ -149,3 +176,29 @@ meta:
                 echo "Terminating cluster $ID"
               aws emr terminate-clusters --cluster-ids $(echo $ID | sed s/'"'//g)
               fi
+
+    mirror-artefact:
+      task: mirror-artefact
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.docker_awscli_repository))
+            version: ((dataworks.docker_awscli_version))
+            tag: ((dataworks.docker_awscli_version))
+        inputs:
+          - name: terraform-output-management
+          - name: artefact-release
+        params:
+          AWS_REGION: ((dataworks.aws_region))
+          AWS_DEFAULT_REGION: ((dataworks.aws_region))
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              source /assume-role
+              set +x
+              export BUCKET=`cat terraform-output-management/outputs.json | jq -r ".artefact_bucket.value.id"`
+              aws s3 cp artefact-release/ghostunnel* s3://${BUCKET}/${ARTEFACT_DIR}/
