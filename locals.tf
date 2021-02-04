@@ -111,4 +111,6 @@ locals {
   cw_agent_metrics_collection_interval = 60
 
   emr_config_s3_prefix = "emr/bgdc"
+
+  ghostunnel_binary_name = "ghostunnel-v1.5.3-linux-amd64-with-pkcs11"
 }
