@@ -74,8 +74,8 @@ locals {
   }
 
   amazon_region_domain = "${data.aws_region.current.name}.amazonaws.com"
-  endpoint_services    = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages"]
-  no_proxy             = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
+  endpoint_services = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages", "elasticloadbalancing"]
+  no_proxy          = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
 
   hive_metastore_backend = {
     development = "aurora"
@@ -111,4 +111,6 @@ locals {
   cw_agent_metrics_collection_interval = 60
 
   emr_config_s3_prefix = "emr/bgdc"
+
+  ghostunnel_binary_name = "ghostunnel-v1.5.3-linux-amd64-with-pkcs11"
 }
