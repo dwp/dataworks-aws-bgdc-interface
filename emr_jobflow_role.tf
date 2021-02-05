@@ -237,7 +237,7 @@ resource "aws_iam_role_policy_attachment" "bgdc_interface_read_dynamodb" {
   policy_arn = aws_iam_policy.bgdc_interface_read_dynamodb.arn
 }
 
-data "aws_iam_policy_document" "bgdc_interface_metadata_change" {
+data "aws_iam_policy_document" "bgdc_interface_various" {
   statement {
     effect = "Allow"
 
@@ -249,15 +249,26 @@ data "aws_iam_policy_document" "bgdc_interface_metadata_change" {
       "arn:aws:ec2:${var.region}:${local.account[local.environment]}:instance/*",
     ]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "elasticloadbalancing:RegisterTargets",
+    ]
+
+    resources = [aws_lb_target_group.bgdc_interface_hive.arn]
+  }
 }
 
 resource "aws_iam_policy" "bgdc_interface_metadata_change" {
   name        = "BGDCInterfaceMetadataOptions"
   description = "Allow editing of Metadata Options"
-  policy      = data.aws_iam_policy_document.bgdc_interface_metadata_change.json
+  policy      = data.aws_iam_policy_document.bgdc_interface_various.json
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_metadata_change" {
   role       = aws_iam_role.bgdc_interface.name
   policy_arn = aws_iam_policy.bgdc_interface_metadata_change.arn
 }
+
