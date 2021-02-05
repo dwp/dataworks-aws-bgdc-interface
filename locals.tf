@@ -13,6 +13,9 @@ locals {
   dks_endpoint           = data.terraform_remote_state.crypto.outputs.dks_endpoint[local.environment]
 
   dataworks_domain_name = "dataworks.dwp.gov.uk"
+  lb_dns_name           = "bgdc-interface.${local.env_prefix[local.environment]}"
+  full_lb_dns_name      = "${local.lb_dns_name}${local.dataworks_domain_name}"
+
 
   crypto_workspace = {
     management-dev = "management-dev"
@@ -61,7 +64,7 @@ locals {
 
         S3EncryptionConfiguration = {
           EncryptionMode             = "CSE-Custom"
-          S3Object                   = "s3://${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.id}/emr-encryption-materials-provider/encryption-materials-provider-all.jar"
+          S3Object                   = "s3://${data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.id}/emr-encryption-materials-provider/encryption-materials-provider-all.jar"
           EncryptionKeyProviderClass = "uk.gov.dwp.dataworks.dks.encryptionmaterialsprovider.DKSEncryptionMaterialsProvider"
         }
         LocalDiskEncryptionConfiguration = {
@@ -74,8 +77,8 @@ locals {
   }
 
   amazon_region_domain = "${data.aws_region.current.name}.amazonaws.com"
-  endpoint_services = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages", "elasticloadbalancing"]
-  no_proxy          = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
+  endpoint_services    = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages", "elasticloadbalancing"]
+  no_proxy             = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
 
   hive_metastore_backend = {
     development = "aurora"

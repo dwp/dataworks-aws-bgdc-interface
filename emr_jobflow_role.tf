@@ -163,7 +163,7 @@ data "aws_iam_policy_document" "bgdc_interface_read_artefacts" {
     ]
 
     resources = [
-      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn,
+      data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.arn,
     ]
   }
 
@@ -175,7 +175,7 @@ data "aws_iam_policy_document" "bgdc_interface_read_artefacts" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn}/*",
+      "${data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.arn}/*",
     ]
   }
 
@@ -188,7 +188,7 @@ data "aws_iam_policy_document" "bgdc_interface_read_artefacts" {
     ]
 
     resources = [
-      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.cmk_arn,
+      data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.cmk_arn,
     ]
   }
 }
