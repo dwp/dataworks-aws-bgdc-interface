@@ -74,8 +74,6 @@ locals {
   }
 
   amazon_region_domain = "${data.aws_region.current.name}.amazonaws.com"
-  #  endpoint_services    = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.no_proxy_list
-  #  no_proxy             = join(",", data.terraform_remote_state.internal_compute.outputs.vpc.vpc.no_proxy_list)
   endpoint_services = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages", "elasticloadbalancing"]
   no_proxy          = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
 
