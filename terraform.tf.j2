@@ -30,6 +30,16 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias = "management_mgmt"
+  version = "~> 3.12.0"
+  region  = "{{terraform.provider_region}}"
+
+  assume_role {
+    role_arn = "arn:aws:iam::${local.account.management}:role/${var.assume_role}"
+  }
+}
+
 // Get AWS Account ID for credentials in use
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
@@ -41,6 +51,12 @@ locals {
 
   account = {
     {%- for key, value in accounts.items() %}
+      {{key}} = "{{value}}"
+    {%- endfor %}
+  }
+
+  bgdc_account = {
+    {%- for key, value in bgdc_accounts.items() %}
       {{key}} = "{{value}}"
     {%- endfor %}
   }
@@ -105,7 +121,7 @@ data "terraform_remote_state" "ingest" {
   }
 }
 
-data "terraform_remote_state" "management_artefact" {
+data "terraform_remote_state" "management_mgmt" {
   backend   = "s3"
   workspace = "management"
 

@@ -18,8 +18,7 @@ bootstrap: ## Bootstrap local environment for first use
 		export AWS_REGION=$(aws_region); \
 		python3 bootstrap_terraform.py; \
 		for github_repository in emr-launcher; do \
-			export REPO=$${github_repository}; \
-			./get_lambda_release.sh; \
+			./get_lambda_release.sh $${github_repository}; \
 		done \
 	}
 	terraform fmt -recursive

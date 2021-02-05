@@ -61,4 +61,16 @@ resource "aws_security_group_rule" "lb_health_check" {
   type              = "ingress"
 }
 
+resource "aws_route53_record" "bgdc_interface" {
+  zone_id = data.terraform_remote_state.management_mgmt.outputs.dataworks_zone.id
+  name    = local.lb_dns_name
+  type    = "A"
 
+  alias {
+    name                   = aws_lb.bgdc_interface_hive.dns_name
+    zone_id                = aws_lb.bgdc_interface_hive.zone_id
+    evaluate_target_health = false
+  }
+
+  provider = aws.management_mgmt
+}
