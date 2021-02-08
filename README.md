@@ -14,6 +14,15 @@ The cluster can be started and stopped on-demand using CI jobs. The mechanism fo
 
 BGDC Interface uses a read-only MySQL user to access Hive Metastore Aurora database. The password for this user can be rotated using provided CI jobs.
 
+## Protecting Hive endpoint with TLS encryption and mutual authentication
+
+![TLS proxy diagram](docs/tls-proxy.png)
+
+Hive offers a very limited number of options in terms of authentication and encryption - essentially, only Kerberos and LDAP for auth and no mutual TLS authentication. We've addressed this by putting a TLS proxy in front of Hive:
+* Hive itself runs in default mode - no authentication or encryption but the endpoint is only exposed to the local network stack of the EC2 instance itself.
+* [Ghostunnel](https://github.com/ghostunnel/ghostunnel) TLS proxy running on the Hive instance provides a TCP listener that has mutual TLS authentication enabled and authenticates & decrypts traffic before forwarding it to the Hive endpoint.
+* To enable a remote client (e.g. Hive shell, Beeline or Informatica EDC) to connect to Hive server, a TLS tunnel to Hive server needs to be established first. Please refer to [TLS proxy configuration](#tls-proxy-configuration)
+
 
 ## Tactical solution to access Hive from BGDC
 
@@ -27,7 +36,7 @@ For development purposes Hive endpoint in development has been made available to
   * Security group: one created in the previous step
 * Modify Informatica node security groups to allow outbound traffic to TCP port 10443 of the security group in step 1.
 
-### TLS proxy configuration
+### <a name="tls-proxy-configuration">TLS proxy configuration</a>
 A TLS proxy needs to be setup on each Informatica node that will access Hive endpoint. For Informatica EDC AWS Marketplace offering these are the Domain node and Gateway node.
 * Download Ghostunnel binary from https://github.com/ghostunnel/ghostunnel
 * Acquire a certificate/private key and CA certificate from DataWorks
