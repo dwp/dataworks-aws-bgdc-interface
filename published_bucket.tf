@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "bgdc_read_parquet" {
     ]
 
     resources = [
-      data.terraform_remote_state.adg.outputs.published_bucket.arn,
+      data.terraform_remote_state.common.outputs.published_bucket.arn,
     ]
   }
 
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "bgdc_read_parquet" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.adg.outputs.published_bucket.arn}/analytical-dataset/*",
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/analytical-dataset/*",
     ]
   }
 
@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "bgdc_read_parquet" {
     ]
 
     resources = [
-      data.terraform_remote_state.adg.outputs.published_bucket_cmk.arn,
+      data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
     ]
   }
 }
