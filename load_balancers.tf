@@ -1,10 +1,10 @@
 resource "aws_lb" "bgdc_interface_hive" {
-  name               = "bgdc-interface-hive"
-  internal           = true
-  load_balancer_type = "network"
-  subnets            = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
-
-  enable_deletion_protection = true
+  name                             = "bgdc-interface-hive"
+  internal                         = true
+  load_balancer_type               = "network"
+  subnets                          = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
+  enable_cross_zone_load_balancing = true
+  enable_deletion_protection       = true
 
   tags = merge(
     local.common_tags,
@@ -37,7 +37,7 @@ resource "aws_lb_target_group" "bgdc_interface_hive" {
   }
 }
 
-# A workaround to allow traffic from NLB health check and not allowing the whole VPC CIDR
+# A workaround to allow traffic from NLB health check without allowing the whole VPC CIDR
 data "aws_network_interface" "lb_eni" {
   count = "${length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)}"
 
@@ -52,11 +52,11 @@ data "aws_network_interface" "lb_eni" {
   }
 }
 
-resource "aws_security_group_rule" "lb_health_check" {
+resource "aws_security_group_rule" "lb_health_check_and_clients" {
   protocol          = "tcp"
   security_group_id = aws_security_group.bgdc_master.id
-  from_port         = 0
-  to_port           = 65535
+  from_port         = 10443
+  to_port           = 10443
   cidr_blocks       = formatlist("%s/32", [for eni in data.aws_network_interface.lb_eni : eni.private_ip])
   type              = "ingress"
 }
