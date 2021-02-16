@@ -84,5 +84,6 @@ variable "truststore_aliases" {
 }
 
 variable "profiling_node_ami_id" {
+  # Initially Amazon Linux 2 stock AMI
   default = "ami-0a669382ea0feb73a"
 }
