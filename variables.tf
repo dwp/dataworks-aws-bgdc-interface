@@ -82,3 +82,7 @@ variable "truststore_aliases" {
   type        = list(string)
   default     = ["dataworks_root_ca", "dataworks_mgt_root_ca"]
 }
+
+variable "profiling_node_ami_id" {
+  default = "ami-0a669382ea0feb73a"
+}

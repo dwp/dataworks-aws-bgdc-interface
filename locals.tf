@@ -16,6 +16,7 @@ locals {
   lb_dns_name           = "bgdc-interface.${local.env_prefix[local.environment]}"
   full_lb_dns_name      = "${local.lb_dns_name}${local.dataworks_domain_name}"
 
+  profiling_node_dns_name = "profiling-node.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
 
   crypto_workspace = {
     management-dev = "management-dev"
@@ -113,7 +114,45 @@ locals {
   cw_agent_yarnspark_loggrp_name       = "/app/bgdc/yarn-spark_logs"
   cw_agent_metrics_collection_interval = 60
 
+  cw_agent_profiling_node_log_group_name = "/app/profiling_node"
+
   emr_config_s3_prefix = "emr/bgdc"
 
   ghostunnel_binary_name = "ghostunnel-v1.5.3-linux-amd64-with-pkcs11"
+
+  iam_role_max_session_timeout_seconds = 43200
+
+  profiling_node_ec2_size = {
+    development = "t2.medium"
+    qa          = "t2.medium"
+    integration = "t2.medium"
+    preprod     = "t2.medium"
+    production  = "t2.medium"
+  }
+
+  asg_ssmenabled = {
+    development = "True"
+    qa          = "True"
+    integration = "True"
+    preprod     = "False" // OFF by IAM Policy
+    production  = "False" // OFF by IAM Policy
+  }
+
+  truststore_aliases = {
+    development = "dataworks_root_ca,dataworks_mgt_root_ca"
+    qa          = "dataworks_root_ca,dataworks_mgt_root_ca"
+    integration = "dataworks_root_ca,dataworks_mgt_root_ca"
+    preprod     = "dataworks_root_ca,dataworks_mgt_root_ca"
+    production  = "dataworks_root_ca,dataworks_mgt_root_ca"
+  }
+
+  truststore_certs = {
+    development = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    qa          = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    integration = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    preprod     = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    production  = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+  }
+
+
 }
