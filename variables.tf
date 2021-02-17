@@ -82,3 +82,8 @@ variable "truststore_aliases" {
   type        = list(string)
   default     = ["dataworks_root_ca", "dataworks_mgt_root_ca"]
 }
+
+variable "profiling_node_ami_id" {
+  # Initially Amazon Linux 2 stock AMI
+  default = "ami-0a669382ea0feb73a"
+}
