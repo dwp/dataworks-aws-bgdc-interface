@@ -9,15 +9,6 @@ locals {
     production  = ""
   }
 
-  env_certificate_bucket = "dw-${local.environment}-public-certificates"
-  dks_endpoint           = data.terraform_remote_state.crypto.outputs.dks_endpoint[local.environment]
-
-  dataworks_domain_name = "dataworks.dwp.gov.uk"
-  lb_dns_name           = "bgdc-interface.${local.env_prefix[local.environment]}"
-  full_lb_dns_name      = "${local.lb_dns_name}${local.dataworks_domain_name}"
-
-  profiling_node_dns_name = "profiling-node.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
-
   crypto_workspace = {
     management-dev = "management-dev"
     management     = "management"
@@ -36,6 +27,56 @@ locals {
     production  = "management"
   }
 
+  truststore_aliases = {
+    development = "dataworks_root_ca,dataworks_mgt_root_ca"
+    qa          = "dataworks_root_ca,dataworks_mgt_root_ca"
+    integration = "dataworks_root_ca,dataworks_mgt_root_ca"
+    preprod     = "dataworks_root_ca,dataworks_mgt_root_ca"
+    production  = "dataworks_root_ca,dataworks_mgt_root_ca"
+  }
+
+  truststore_certs = {
+    development = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    qa          = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    integration = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    preprod     = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+    production  = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
+  }
+
+  env_certificate_bucket = "dw-${local.environment}-public-certificates"
+
+  iam_role_max_session_timeout_seconds = 43200
+
+  amazon_region_domain = "${data.aws_region.current.name}.amazonaws.com"
+  endpoint_services    = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages", "elasticloadbalancing"]
+  no_proxy             = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
+
+  dks_endpoint = data.terraform_remote_state.crypto.outputs.dks_endpoint[local.environment]
+
+  emr_clusters = {
+    bgdc_interface          = "bgdc-interface"
+    bgdc_interface_metadata = "bgdc-interface-metadata"
+  }
+
+  dataworks_domain_name = "dataworks.dwp.gov.uk"
+
+  emr_config_s3_prefix = {
+    bgdc_interface          = "emr/bgdc-interface"
+    bgdc_interface_metadata = "emr/bgdc-interface-metadata"
+  }
+
+  s3_log_prefix = {
+    bgdc_interface          = "emr/bgdc-interface"
+    bgdc_interface_metadata = "emr/bgdc-interface-metadata"
+  }
+
+  component = {
+    bgdc_interface          = "bgdc-interface"
+    bgdc_interface_metadata = "bgdc-interface-metadata"
+  }
+
+  ghostunnel_binary_name = "ghostunnel-v1.5.3-linux-amd64-with-pkcs11"
+
   keep_cluster_alive = {
     development = true
     qa          = true
@@ -52,8 +93,8 @@ locals {
     production  = "TERMINATE_CLUSTER"
   }
 
-  hbase_root_path          = format("s3://%s", data.terraform_remote_state.ingest.outputs.s3_buckets.hbase_rootdir)
-  s3_log_prefix            = "emr/bgdc_interface"
+  hbase_root_path = format("s3://%s", data.terraform_remote_state.ingest.outputs.s3_buckets.hbase_rootdir)
+
   emrfs_metadata_tablename = "Analytical_Dataset_Generation_Metadata"
   data_pipeline_metadata   = data.terraform_remote_state.internal_compute.outputs.data_pipeline_metadata_dynamo.name
 
@@ -77,10 +118,6 @@ locals {
     }
   }
 
-  amazon_region_domain = "${data.aws_region.current.name}.amazonaws.com"
-  endpoint_services    = ["dynamodb", "ec2", "ec2messages", "glue", "kms", "logs", "monitoring", ".s3", "s3", "secretsmanager", "ssm", "ssmmessages", "elasticloadbalancing"]
-  no_proxy             = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
-
   hive_metastore_backend = {
     development = "aurora"
     qa          = "aurora"
@@ -88,8 +125,6 @@ locals {
     preprod     = "aurora"
     production  = "aurora"
   }
-
-  component = "bgdc"
 
   bgdc_log_level = {
     development = "DEBUG"
@@ -107,20 +142,36 @@ locals {
     production  = "0.0.1"
   }
 
-  cw_agent_namespace                   = "/app/bgdc"
-  cw_agent_log_group_name              = "/app/bgdc"
-  cw_agent_bootstrap_loggrp_name       = "/app/bgdc/bootstrap_actions"
-  cw_agent_steps_loggrp_name           = "/app/bgdc/step_logs"
-  cw_agent_yarnspark_loggrp_name       = "/app/bgdc/yarn-spark_logs"
   cw_agent_metrics_collection_interval = 60
 
-  cw_agent_profiling_node_log_group_name = "/app/profiling_node"
+  cw_agent_namespace = {
+    bgdc_interface          = "/app/bgdc-interface"
+    bgdc_interface_metadata = "/app/bgdc-interface-metadata"
+  }
+  cw_agent_log_group_name = {
+    bgdc_interface          = "/app/bgdc-interface"
+    bgdc_interface_metadata = "/app/bgdc-interface-metadata"
+  }
+  cw_agent_bootstrap_loggrp_name = {
+    bgdc_interface          = "/app/bgdc-interface/bootstrap_actions"
+    bgdc_interface_metadata = "/app/bgdc-interface-metadata/bootstrap_actions"
+  }
+  cw_agent_steps_loggrp_name = {
+    bgdc_interface          = "/app/bgdc-interface/step_logs"
+    bgdc_interface_metadata = "/app/bgdc-interface-metadata/step_logs"
+  }
+  cw_agent_yarnspark_loggrp_name = {
+    bgdc_interface          = "/app/bgdc-interface/yarn-spark_logs"
+    bgdc_interface_metadata = "/app/bgdc-interface-metadata/yarn-spark_logs"
+  }
 
-  emr_config_s3_prefix = "emr/bgdc"
+  parquet_permissions = {
+    bgdc_interface          = "Allow"
+    bgdc_interface_metadata = "Deny"
+  }
 
-  ghostunnel_binary_name = "ghostunnel-v1.5.3-linux-amd64-with-pkcs11"
 
-  iam_role_max_session_timeout_seconds = 43200
+  profiling_node_dns_name = "profiling-node.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
 
   profiling_node_ec2_size = {
     development = "t2.medium"
@@ -138,21 +189,6 @@ locals {
     production  = "False" // OFF by IAM Policy
   }
 
-  truststore_aliases = {
-    development = "dataworks_root_ca,dataworks_mgt_root_ca"
-    qa          = "dataworks_root_ca,dataworks_mgt_root_ca"
-    integration = "dataworks_root_ca,dataworks_mgt_root_ca"
-    preprod     = "dataworks_root_ca,dataworks_mgt_root_ca"
-    production  = "dataworks_root_ca,dataworks_mgt_root_ca"
-  }
-
-  truststore_certs = {
-    development = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
-    qa          = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
-    integration = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
-    preprod     = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
-    production  = "s3://${data.terraform_remote_state.aws_certificate_authority.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
-  }
-
+  cw_agent_profiling_node_log_group_name = "/app/profiling_node"
 
 }

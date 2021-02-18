@@ -16,8 +16,9 @@ data "aws_iam_role" "aws_config" {
 
 
 data "aws_iam_policy_document" "bgdc_read_parquet" {
+  for_each = local.emr_clusters
   statement {
-    effect = "Allow"
+    effect = local.parquet_permissions[each.key]
 
     actions = [
       "s3:GetBucketLocation",
@@ -30,7 +31,7 @@ data "aws_iam_policy_document" "bgdc_read_parquet" {
   }
 
   statement {
-    effect = "Allow"
+    effect = local.parquet_permissions[each.key]
 
     actions = [
       "s3:GetObject*",
@@ -42,7 +43,7 @@ data "aws_iam_policy_document" "bgdc_read_parquet" {
   }
 
   statement {
-    effect = "Allow"
+    effect = local.parquet_permissions[each.key]
 
     actions = [
       "kms:Decrypt",
@@ -57,7 +58,8 @@ data "aws_iam_policy_document" "bgdc_read_parquet" {
 }
 
 resource "aws_iam_policy" "bgdc_read_parquet" {
-  name        = "BGDCInterfaceReadParquet"
-  description = "Allow reading of Analytical Dataset parquet files"
-  policy      = data.aws_iam_policy_document.bgdc_read_parquet.json
+  for_each    = local.emr_clusters
+  name        = "${each.key}_InterfaceReadParquet"
+  description = "Control access to Analytical Dataset parquet files"
+  policy      = data.aws_iam_policy_document.bgdc_read_parquet[each.key].json
 }
