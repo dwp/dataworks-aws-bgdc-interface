@@ -8,8 +8,9 @@ variable "emr_launcher_zip" {
 }
 
 resource "aws_lambda_function" "bgdc_emr_launcher" {
+  for_each      = local.emr_clusters
   filename      = "${var.emr_launcher_zip["base_path"]}/emr-launcher-${var.emr_launcher_zip["version"]}.zip"
-  function_name = "bgdc_emr_launcher"
+  function_name = "${local.emr_clusters[each.key]}_emr_launcher"
   role          = aws_iam_role.bgdc_emr_launcher_lambda_role.arn
   handler       = "emr_launcher/handler.handler"
   runtime       = "python3.7"
@@ -26,14 +27,14 @@ resource "aws_lambda_function" "bgdc_emr_launcher" {
   environment {
     variables = {
       EMR_LAUNCHER_CONFIG_S3_BUCKET = data.terraform_remote_state.common.outputs.config_bucket.id
-      EMR_LAUNCHER_CONFIG_S3_FOLDER = local.emr_config_s3_prefix
+      EMR_LAUNCHER_CONFIG_S3_FOLDER = local.emr_config_s3_prefix[each.key]
       EMR_LAUNCHER_LOG_LEVEL        = "debug"
     }
   }
   tags = merge(
     local.common_tags,
     {
-      Name                  = "bgdc_emr_launcher"
+      Name                  = "${local.emr_clusters[each.key]}_emr_launcher"
       ProtectsSensitiveData = "False"
       Version               = var.emr_launcher_zip["version"]
     },
@@ -60,15 +61,20 @@ data "aws_iam_policy_document" "bgdc_emr_launcher_assume_policy" {
 }
 
 data "aws_iam_policy_document" "bgdc_emr_launcher_read_s3_policy" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-    ]
-    resources = [
-      "arn:aws:s3:::${data.terraform_remote_state.common.outputs.config_bucket.id}/${local.emr_config_s3_prefix}/*",
-    ]
+
+  dynamic "statement" {
+    for_each = local.emr_clusters
+    content {
+      effect = "Allow"
+      actions = [
+        "s3:GetObject",
+      ]
+      resources = [
+        "arn:aws:s3:::${data.terraform_remote_state.common.outputs.config_bucket.id}/${local.emr_config_s3_prefix[statement.key]}/*",
+      ]
+    }
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -168,7 +174,8 @@ resource "aws_iam_role_policy_attachment" "bgdc_emr_launcher_getsecrets" {
 }
 
 resource "aws_cloudwatch_log_group" "bgdc_emr_launcher" {
-  name              = "/aws/lambda/bgdc_emr_launcher"
+  for_each          = local.emr_clusters
+  name              = "${local.emr_clusters[each.key]}_emr_launcher"
   retention_in_days = 180
   tags              = local.common_tags
 }

@@ -4,15 +4,16 @@ resource "aws_emr_security_configuration" "ebs_emrfs_em" {
 }
 
 resource "aws_s3_bucket_object" "cluster" {
-  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "${local.emr_config_s3_prefix}/cluster.yaml"
+  for_each = local.emr_clusters
+  bucket   = data.terraform_remote_state.common.outputs.config_bucket.id
+  key      = "${local.emr_config_s3_prefix[each.key]}/cluster.yaml"
   content = templatefile("${path.module}/cluster_config/cluster.yaml.tpl",
     {
       s3_log_bucket          = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
-      s3_log_prefix          = local.s3_log_prefix
+      s3_log_prefix          = local.s3_log_prefix[each.key]
       ami_id                 = var.emr_ami_id
       service_role           = aws_iam_role.bgdc_emr_service.arn
-      instance_profile       = aws_iam_instance_profile.bgdc_interface.arn
+      instance_profile       = aws_iam_instance_profile.bgdc_interface[each.key].arn
       security_configuration = aws_emr_security_configuration.ebs_emrfs_em.id
       emr_release            = var.emr_release[local.environment]
     }
@@ -20,8 +21,10 @@ resource "aws_s3_bucket_object" "cluster" {
 }
 
 resource "aws_s3_bucket_object" "instances" {
+  for_each = local.emr_clusters
+
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "${local.emr_config_s3_prefix}/instances.yaml"
+  key    = "${local.emr_config_s3_prefix[each.key]}/instances.yaml"
   content = templatefile("${path.module}/cluster_config/instances.yaml.tpl",
     {
       keep_cluster_alive  = local.keep_cluster_alive[local.environment]
@@ -38,13 +41,15 @@ resource "aws_s3_bucket_object" "instances" {
 }
 
 resource "aws_s3_bucket_object" "steps" {
+  for_each = local.emr_clusters
+
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "${local.emr_config_s3_prefix}/steps.yaml"
+  key    = "${local.emr_config_s3_prefix[each.key]}/steps.yaml"
   content = templatefile("${path.module}/cluster_config/steps.yaml.tpl",
     {
       s3_config_bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
       action_on_failure = local.step_fail_action[local.environment]
-      component         = local.component
+      component         = local.component[each.key]
     }
   )
 }
@@ -65,12 +70,14 @@ locals {
 }
 
 resource "aws_s3_bucket_object" "configurations" {
+  for_each = local.emr_clusters
+
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "${local.emr_config_s3_prefix}/configurations.yaml"
+  key    = "${local.emr_config_s3_prefix[each.key]}/configurations.yaml"
   content = templatefile("${path.module}/cluster_config/configurations.yaml.tpl",
     {
       s3_log_bucket                       = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
-      s3_log_prefix                       = local.s3_log_prefix
+      s3_log_prefix                       = local.s3_log_prefix[each.key]
       s3_published_bucket                 = data.terraform_remote_state.common.outputs.published_bucket.id
       s3_ingest_bucket                    = data.terraform_remote_state.ingest.outputs.s3_buckets.input_bucket
       hbase_root_path                     = local.hbase_root_path

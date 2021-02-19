@@ -84,7 +84,7 @@ data "aws_iam_policy_document" "bgdc_ebs_cmk" {
 
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.bgdc_emr_service.arn, aws_iam_role.bgdc_interface.arn]
+      identifiers = concat([aws_iam_role.bgdc_emr_service.arn], values(aws_iam_role.bgdc_interface)[*].arn)
     }
 
     actions = [
@@ -105,7 +105,7 @@ data "aws_iam_policy_document" "bgdc_ebs_cmk" {
 
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.bgdc_emr_service.arn, aws_iam_role.bgdc_interface.arn]
+      identifiers = concat([aws_iam_role.bgdc_emr_service.arn], values(aws_iam_role.bgdc_interface)[*].arn)
     }
 
     actions = ["kms:CreateGrant"]

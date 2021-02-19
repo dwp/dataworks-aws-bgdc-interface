@@ -12,42 +12,51 @@ data "aws_iam_policy_document" "ec2_assume_role" {
 }
 
 resource "aws_iam_role" "bgdc_interface" {
-  name               = "bgdc_interface"
+  for_each           = local.emr_clusters
+  name               = each.key
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
   tags               = local.common_tags
 }
 
 resource "aws_iam_instance_profile" "bgdc_interface" {
-  name = "bgdc_interface"
-  role = aws_iam_role.bgdc_interface.id
+  for_each = local.emr_clusters
+  name     = each.key
+  role     = aws_iam_role.bgdc_interface[each.key].id
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
-  role       = aws_iam_role.bgdc_interface.name
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
 resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
-  role       = aws_iam_role.bgdc_interface.name
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_ebs_cmk" {
-  role       = aws_iam_role.bgdc_interface.name
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
   policy_arn = aws_iam_policy.bgdc_ebs_cmk_encrypt.arn
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_read_parquet" {
-  role       = aws_iam_role.bgdc_interface.name
-  policy_arn = aws_iam_policy.bgdc_read_parquet.arn
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
+  policy_arn = aws_iam_policy.bgdc_read_parquet[each.key].arn
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_acm" {
-  role       = aws_iam_role.bgdc_interface.name
-  policy_arn = aws_iam_policy.bgdc_interface_acm.arn
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
+  policy_arn = aws_iam_policy.bgdc_interface_acm[each.key].arn
 }
 
 data "aws_iam_policy_document" "bgdc_interface_write_logs" {
+  for_each = local.emr_clusters
+
   statement {
     effect = "Allow"
 
@@ -71,23 +80,26 @@ data "aws_iam_policy_document" "bgdc_interface_write_logs" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}",
+      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix[each.key]}",
     ]
   }
 }
 
 resource "aws_iam_policy" "bgdc_interface_write_logs" {
-  name        = "BGDCInterfaceWriteLogs"
+  for_each    = local.emr_clusters
+  name        = "${each.key}_WriteLogs"
   description = "Allow writing of BGDC Interface logs"
-  policy      = data.aws_iam_policy_document.bgdc_interface_write_logs.json
+  policy      = data.aws_iam_policy_document.bgdc_interface_write_logs[each.key].json
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_write_logs" {
-  role       = aws_iam_role.bgdc_interface.name
-  policy_arn = aws_iam_policy.bgdc_interface_write_logs.arn
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
+  policy_arn = aws_iam_policy.bgdc_interface_write_logs[each.key].arn
 }
 
 data "aws_iam_policy_document" "bgdc_interface_config" {
+
   statement {
     effect = "Allow"
 
@@ -121,7 +133,7 @@ data "aws_iam_policy_document" "bgdc_interface_config" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.common.outputs.config_bucket.arn}/component/bgdc/*",
+      "${data.terraform_remote_state.common.outputs.config_bucket.arn}/component/bgdc*",
     ]
   }
 
@@ -143,13 +155,14 @@ data "aws_iam_policy_document" "bgdc_interface_config" {
 }
 
 resource "aws_iam_policy" "bgdc_interface_read_config" {
-  name        = "BGDCInterfaceReadConfig"
+  name        = "BGDCReadConfig"
   description = "Allow reading of BGD Interface config files"
   policy      = data.aws_iam_policy_document.bgdc_interface_config.json
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_read_config" {
-  role       = aws_iam_role.bgdc_interface.name
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
   policy_arn = aws_iam_policy.bgdc_interface_read_config.arn
 }
 
@@ -200,7 +213,8 @@ resource "aws_iam_policy" "bgdc_interface_read_artefacts" {
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_read_artefacts" {
-  role       = aws_iam_role.bgdc_interface.name
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
   policy_arn = aws_iam_policy.bgdc_interface_read_artefacts.arn
 }
 
@@ -233,11 +247,13 @@ resource "aws_iam_policy" "bgdc_interface_read_dynamodb" {
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_read_dynamodb" {
-  role       = aws_iam_role.bgdc_interface.name
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
   policy_arn = aws_iam_policy.bgdc_interface_read_dynamodb.arn
 }
 
 data "aws_iam_policy_document" "bgdc_interface_various" {
+  for_each = local.emr_clusters
   statement {
     effect = "Allow"
 
@@ -257,18 +273,20 @@ data "aws_iam_policy_document" "bgdc_interface_various" {
       "elasticloadbalancing:RegisterTargets",
     ]
 
-    resources = [aws_lb_target_group.bgdc_interface_hive.arn]
+    resources = [aws_lb_target_group.bgdc_interface_hive[each.key].arn]
   }
 }
 
 resource "aws_iam_policy" "bgdc_interface_metadata_change" {
-  name        = "BGDCInterfaceMetadataOptions"
+  for_each    = local.emr_clusters
+  name        = "${each.key}_MetadataOptions"
   description = "Allow editing of Metadata Options"
-  policy      = data.aws_iam_policy_document.bgdc_interface_various.json
+  policy      = data.aws_iam_policy_document.bgdc_interface_various[each.key].json
 }
 
 resource "aws_iam_role_policy_attachment" "bgdc_interface_metadata_change" {
-  role       = aws_iam_role.bgdc_interface.name
-  policy_arn = aws_iam_policy.bgdc_interface_metadata_change.arn
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
+  policy_arn = aws_iam_policy.bgdc_interface_metadata_change[each.key].arn
 }
 
