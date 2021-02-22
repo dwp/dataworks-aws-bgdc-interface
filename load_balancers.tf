@@ -5,7 +5,6 @@ resource "aws_lb" "bgdc_interface_hive" {
   load_balancer_type               = "network"
   subnets                          = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
   enable_cross_zone_load_balancing = true
-  enable_deletion_protection       = true
 
   tags = merge(
     local.common_tags,
