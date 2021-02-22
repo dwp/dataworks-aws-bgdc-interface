@@ -1,4 +1,4 @@
-resource "aws_lb" "bgdc_interface_hive" {
+resource "aws_lb" "bgdc_interface_emr" {
   for_each                         = local.emr_clusters
   name                             = "${each.value}-hive"
   internal                         = true
@@ -14,9 +14,24 @@ resource "aws_lb" "bgdc_interface_hive" {
   )
 }
 
+resource "aws_lb" "bgdc_interface_hive" {
+  name                             = "bgdc-interface-hive"
+  internal                         = true
+  load_balancer_type               = "network"
+  subnets                          = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
+  enable_cross_zone_load_balancing = true
+
+  tags = merge(
+  local.common_tags,
+  {
+    Name = "bgdc-interface-hive-old"
+  },
+  )
+}
+
 resource "aws_lb_listener" "bgdc_interface_hive" {
   for_each          = local.emr_clusters
-  load_balancer_arn = aws_lb.bgdc_interface_hive[each.key].arn
+  load_balancer_arn = aws_lb.bgdc_interface_emr[each.key].arn
   port              = "10443"
   protocol          = "TCP"
 
@@ -45,7 +60,7 @@ data "aws_network_interface" "lb_eni_bgdc_interface" {
 
   filter {
     name   = "description"
-    values = ["ELB ${aws_lb.bgdc_interface_hive["bgdc_interface"].arn_suffix}"]
+    values = ["ELB ${aws_lb.bgdc_interface_emr["bgdc_interface"].arn_suffix}"]
   }
 
   filter {
@@ -59,7 +74,7 @@ data "aws_network_interface" "lb_eni_bgdc_interface_metadata" {
 
   filter {
     name   = "description"
-    values = ["ELB ${aws_lb.bgdc_interface_hive["bgdc_interface_metadata"].arn_suffix}"]
+    values = ["ELB ${aws_lb.bgdc_interface_emr["bgdc_interface_metadata"].arn_suffix}"]
   }
 
   filter {
@@ -95,8 +110,8 @@ resource "aws_route53_record" "bgdc_interface" {
   type     = "A"
 
   alias {
-    name                   = aws_lb.bgdc_interface_hive[each.key].dns_name
-    zone_id                = aws_lb.bgdc_interface_hive[each.key].zone_id
+    name                   = aws_lb.bgdc_interface_emr[each.key].dns_name
+    zone_id                = aws_lb.bgdc_interface_emr[each.key].zone_id
     evaluate_target_health = false
   }
 
