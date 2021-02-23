@@ -115,6 +115,7 @@ meta:
 
     start-cluster:
       task: start-cluster
+      attempts: 5
       config:
         platform: linux
         image_resource:
@@ -127,6 +128,7 @@ meta:
           AWS_ROLE_ARN: arn:aws:iam::((aws_account.development)):role/ci
           AWS_REGION: ((dataworks.aws_region))
           AWS_DEFAULT_REGION: ((dataworks.aws_region))
+          CLUSTER_NAME: unset
         run:
           path: sh
           args:
@@ -134,12 +136,13 @@ meta:
             - |
               source /assume-role
               set +x
-              ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
+              echo "Starting cluster: $CLUSTER_NAME"
+              ID=$(aws emr list-clusters --active | jq .[] | jq ".[] | select(.Name==\"$CLUSTER_NAME\")" | jq .Id)
               if [[ ! -z "$ID" ]] ; then
                 echo "Error: one or more clusters already running"
                 exit 1
               else
-                aws lambda invoke --function-name bgdc_emr_launcher --invocation-type RequestResponse --cli-connect-timeout 600 --cli-read-timeout 600 output.json
+                aws lambda invoke --function-name ${CLUSTER_NAME}_emr_launcher --invocation-type RequestResponse --cli-connect-timeout 600 --cli-read-timeout 600 output.json
                 cat output.json | jq -eC "if .errorMessage? then error(.errorMessage) else true end"
               fi
 
@@ -157,6 +160,7 @@ meta:
           AWS_ROLE_ARN: arn:aws:iam::((aws_account.development)):role/ci
           AWS_REGION: ((dataworks.aws_region))
           AWS_DEFAULT_REGION: ((dataworks.aws_region))
+          CLUSTER_NAME: unset
         run:
           path: sh
           args:
@@ -164,13 +168,13 @@ meta:
             - |
               source /assume-role
               set +x
-              ID=$(aws emr list-clusters --active | jq .[] | jq '.[] | select(.Name=="bgdc-interface")' | jq .Id)
+              ID=$(aws emr list-clusters --active | jq .[] | jq ".[] | select(.Name==\"$CLUSTER_NAME\")" | jq .Id)
               ID_COUNT=$(echo "$ID" | wc -l | sed s/" "//g)
               if [[ -z "$ID" ]] ; then
-                echo "Error: no clusters running"
+                echo "Error: no clusters named $CLUSTER_NAME running"
                 exit 1
               elif [[ $ID_COUNT != 1 ]]; then
-                echo "Error: more than 1 cluster identified"
+                echo "Error: more than 1 cluster named $CLUSTER_NAME identified"
                 exit 1
               else
                 echo "Terminating cluster $ID"
