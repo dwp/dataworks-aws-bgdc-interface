@@ -15,7 +15,7 @@ resource "aws_lb" "bgdc_interface_emr" {
 }
 
 resource "aws_lb" "bgdc_interface_hive" {
-  name                             = "bgdc-interface-hive"
+  name                             = "bgdc-interface-hive-old"
   internal                         = true
   load_balancer_type               = "network"
   subnets                          = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
