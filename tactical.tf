@@ -4,7 +4,7 @@
 resource "aws_vpc_endpoint_service" "bgdc_interface_hive_for_bgdc_sandbox" {
   count                      = local.environment == "development" ? 1 : 0
   acceptance_required        = false
-  network_load_balancer_arns = [aws_lb.bgdc_interface_hive["bgdc_interface"].arn]
+  network_load_balancer_arns = [aws_lb.bgdc_interface_emr["bgdc_interface"].arn]
   allowed_principals = [
     "arn:aws:iam::${local.account[local.environment]}:root",
     "arn:aws:iam::${local.bgdc_account.test}:root",

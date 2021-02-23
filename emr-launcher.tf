@@ -173,9 +173,16 @@ resource "aws_iam_role_policy_attachment" "bgdc_emr_launcher_getsecrets" {
   policy_arn = aws_iam_policy.bgdc_emr_launcher_getsecrets.arn
 }
 
-resource "aws_cloudwatch_log_group" "bgdc_emr_launcher" {
+resource "aws_cloudwatch_log_group" "bgdc_interface_emr_launcher" {
   for_each          = local.emr_clusters
   name              = "${local.emr_clusters[each.key]}_emr_launcher"
+  retention_in_days = 180
+  tags              = local.common_tags
+}
+
+# Deprecated
+resource "aws_cloudwatch_log_group" "bgdc_emr_launcher" {
+  name              = "/aws/lambda/bgdc_emr_launcher"
   retention_in_days = 180
   tags              = local.common_tags
 }
