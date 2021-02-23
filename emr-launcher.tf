@@ -175,7 +175,7 @@ resource "aws_iam_role_policy_attachment" "bgdc_emr_launcher_getsecrets" {
 
 resource "aws_cloudwatch_log_group" "bgdc_interface_emr_launcher" {
   for_each          = local.emr_clusters
-  name              = "${local.emr_clusters[each.key]}_emr_launcher"
+  name              = "/aws/lambda/${local.emr_clusters[each.key]}-emr-launcher"
   retention_in_days = 180
   tags              = local.common_tags
 }
