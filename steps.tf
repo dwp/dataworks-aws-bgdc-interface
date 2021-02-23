@@ -1,5 +1,5 @@
 resource "aws_s3_bucket_object" "ghostunnel_service" {
-  for_each                  = local.emr_clusters
+  for_each   = local.emr_clusters
   bucket     = data.terraform_remote_state.common.outputs.config_bucket.id
   key        = "component/${local.component[each.key]}/ghostunnel_service"
   content    = file("${path.module}/steps/ghostunnel_service")
@@ -7,9 +7,9 @@ resource "aws_s3_bucket_object" "ghostunnel_service" {
 }
 
 resource "aws_s3_bucket_object" "ghostunnel-setup" {
-  for_each                  = local.emr_clusters
-  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
-  key    = "component/${local.component[each.key]}/ghostunnel-setup.sh"
+  for_each = local.emr_clusters
+  bucket   = data.terraform_remote_state.common.outputs.config_bucket.id
+  key      = "component/${local.component[each.key]}/ghostunnel-setup.sh"
   content = templatefile("${path.module}/steps/ghostunnel-setup.tpl",
     {
       aws_default_region             = "eu-west-2"
