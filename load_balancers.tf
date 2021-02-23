@@ -14,21 +14,6 @@ resource "aws_lb" "bgdc_interface_emr" {
   )
 }
 
-resource "aws_lb" "bgdc_interface_hive" {
-  name                             = "bgdc-interface-hive-old"
-  internal                         = true
-  load_balancer_type               = "network"
-  subnets                          = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
-  enable_cross_zone_load_balancing = true
-
-  tags = merge(
-  local.common_tags,
-  {
-    Name = "bgdc-interface-hive-old"
-  },
-  )
-}
-
 resource "aws_lb_listener" "bgdc_interface_hive" {
   for_each          = local.emr_clusters
   load_balancer_arn = aws_lb.bgdc_interface_emr[each.key].arn
