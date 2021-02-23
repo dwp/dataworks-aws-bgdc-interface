@@ -25,7 +25,7 @@ sudo cp /etc/pki/ca-trust/source/anchors/bgdc_ca.pem /opt/ghostunnel/
 
 sudo sh -c "echo '/opt/ghostunnel/ghostunnel server --listen 0.0.0.0:10443 --target localhost:10000 \
   --keystore /opt/ghostunnel/bgdc_interface.pem \
-  --cacert /opt/ghostunnel/bgdc_ca.pem  --allow-cn' > /opt/ghostunnel/ghostunnel.sh"
+  --cacert /opt/ghostunnel/bgdc_ca.pem  --allow-all' > /opt/ghostunnel/ghostunnel.sh"
 sudo chown -R hadoop:hadoop /opt/ghostunnel
 sudo chown hadoop:hadoop /var/log/ghostunnel
 sudo chown root:root /etc/init.d/ghostunnel_service
