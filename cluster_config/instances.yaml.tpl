@@ -21,14 +21,4 @@ Instances:
             VolumeType: "gp2"
           VolumesPerInstance: 1
       InstanceType: "${instance_type}"
-  - InstanceFleetType: "CORE"
-    Name: CORE
-    TargetOnDemandCapacity: ${core_instance_count}
-    InstanceTypeConfigs:
-    - EbsConfiguration:
-        EbsBlockDeviceConfigs:
-        - VolumeSpecification:
-            SizeInGB: 250
-            VolumeType: "gp2"
-          VolumesPerInstance: 1
-      InstanceType: "${instance_type}"
+
