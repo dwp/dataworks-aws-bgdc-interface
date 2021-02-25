@@ -29,6 +29,6 @@ Tags:
 - Key: "Application"
   Value: "dataworks-aws-bgdc-interface"
 - Key: "Name"
-  Value: "dataworks-aws-bgdc-interface"
+  Value: "${cluster_name}"
 - Key: "Costcode"
   Value: "PRJ0039297"

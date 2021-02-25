@@ -25,9 +25,9 @@ variable "emr_release" {
 
 variable "emr_instance_type" {
   default = {
-    development = "m5.2xlarge"
-    qa          = "m5.2xlarge"
-    integration = "m5.2xlarge"
+    development = "m5.xlarge"
+    qa          = "m5.xlarge"
+    integration = "m5.xlarge"
     preprod     = "m5.2xlarge"
     production  = "m5.2xlarge"
   }
@@ -35,11 +35,11 @@ variable "emr_instance_type" {
 
 variable "emr_core_instance_count" {
   default = {
-    development = "2"
-    qa          = "2"
-    integration = "2"
-    preprod     = "2"
-    production  = "2"
+    development = "0"
+    qa          = "0"
+    integration = "0"
+    preprod     = "0"
+    production  = "0"
   }
 }
 
