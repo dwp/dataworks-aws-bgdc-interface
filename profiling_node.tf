@@ -327,6 +327,26 @@ resource "aws_security_group_rule" "vpc_endpoints_from_profiling_node" {
   source_security_group_id = aws_security_group.profiling_node.id
 }
 
+resource "aws_security_group_rule" "profiling_node_to_hive" {
+  description              = "Profiling node to Hive endpoint"
+  type                     = "egress"
+  from_port                = 10443
+  to_port                  = 10443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.profiling_node.id
+  source_security_group_id = aws_security_group.bgdc_master.id
+}
+
+resource "aws_security_group_rule" "hive_from_profiling_node" {
+  description              = "Profiling node to Hive endpoint"
+  type                     = "ingress"
+  from_port                = 10443
+  to_port                  = 10443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.bgdc_master.id
+  source_security_group_id = aws_security_group.profiling_node.id
+}
+
 # Fits with log retention policy https://git.ucd.gpn.gov.uk/dip/aws-common-infrastructure/wiki/Audit-Logging#log-retention-policy
 resource "aws_cloudwatch_log_group" "profiling_node" {
   name              = local.cw_agent_profiling_node_log_group_name
