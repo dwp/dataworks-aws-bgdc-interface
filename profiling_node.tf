@@ -328,7 +328,7 @@ resource "aws_security_group_rule" "vpc_endpoints_from_profiling_node" {
 }
 
 resource "aws_security_group_rule" "profiling_node_to_hive" {
-  description              = "Allow HTTPS traffic to VPC endpoints"
+  description              = "Profiling node to Hive endpoint"
   type                     = "egress"
   from_port                = 10443
   to_port                  = 10443
@@ -338,7 +338,7 @@ resource "aws_security_group_rule" "profiling_node_to_hive" {
 }
 
 resource "aws_security_group_rule" "hive_from_profiling_node" {
-  description              = "Allow HTTPS traffic to VPC endpoints"
+  description              = "Profiling node to Hive endpoint"
   type                     = "ingress"
   from_port                = 10443
   to_port                  = 10443
