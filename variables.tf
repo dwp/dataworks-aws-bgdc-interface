@@ -15,11 +15,11 @@ variable "emr_ami_id" {
 
 variable "emr_release" {
   default = {
-    development = "5.29.0"
-    qa          = "5.29.0"
-    integration = "5.29.0"
-    preprod     = "5.29.0"
-    production  = "5.29.0"
+    development = "6.2.0"
+    qa          = "6.2.0"
+    integration = "6.2.0"
+    preprod     = "6.2.0"
+    production  = "6.2.0"
   }
 }
 

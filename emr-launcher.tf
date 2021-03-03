@@ -164,6 +164,7 @@ data "aws_iam_policy_document" "bgdc_emr_launcher_getsecrets" {
 
     resources = [
       data.terraform_remote_state.adg.outputs.metadata_store_users.bgdc.secret_arn,
+      data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.secret_arn,
     ]
   }
 }
