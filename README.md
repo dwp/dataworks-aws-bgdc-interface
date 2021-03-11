@@ -14,7 +14,11 @@ Two clusters are built:
   * only has access to metadata DB
   * accessed by BGDC Domain node to import Hive schema 
 
-![Overview](docs/overview.png)
+![Overview](docs/bgdc-dwx-design-v3.png)
+
+Cluster design in more detail:
+
+![Cluster design](docs/overview.png)
 
 Both clusters can be started and stopped on-demand using CI admin jobs. The mechanism for this involving an EMR Launcher Lambda is similar to the one used in [Analytical Dataset Generation](https://github.com/dwp/aws-analytical-dataset-generation).
 
