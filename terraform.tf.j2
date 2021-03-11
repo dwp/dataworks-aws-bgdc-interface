@@ -77,6 +77,21 @@ locals {
           {{ key }} = "{{ value }}"{% endfor %}
       } {%- endfor %}
   }
+
+  bgdc_vpc_peering = {
+    {%- for environment, params in bgdc_vpc_peering.items() %}
+    {{ environment }} = {
+      {%- for key, value in params.items() %}
+        {%- if key == 'subnet_cidr_blocks' %}
+        subnet_cidr_blocks = [ {%- for item in value %} "{{ item }}", {%- endfor %} ]
+        {%- else %}
+        {{ key }} = "{{ value }}"
+        {%- endif %}
+      {%- endfor %}
+    }
+    {%- endfor %}
+  }
+
 }
 
 data "terraform_remote_state" "crypto" {

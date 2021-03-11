@@ -170,7 +170,6 @@ locals {
     bgdc_interface_metadata = "Deny"
   }
 
-
   profiling_node_dns_name = "profiling-node.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
 
   profiling_node_ec2_size = {
