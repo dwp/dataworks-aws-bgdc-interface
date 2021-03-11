@@ -1,9 +1,9 @@
-module "edc_vpc" {
+module "profiling_vpc" {
   source         = "dwp/vpc/aws"
   version        = "3.0.9"
-  vpc_name       = "edc"
+  vpc_name       = "profiling"
   region         = var.region
-  vpc_cidr_block = local.cidr_block[local.environment].bgdc-edc-vpc
+  vpc_cidr_block = local.cidr_block[local.environment].profiling-vpc
   gateway_vpce_route_table_ids = [
   ]
   interface_vpce_source_security_group_ids = [
@@ -29,10 +29,10 @@ module "edc_vpc" {
 resource "aws_subnet" "vpc_endpoints" {
   count             = length(data.aws_availability_zones.available.names)
   availability_zone = data.aws_availability_zones.available.names[count.index]
-  vpc_id            = module.edc_vpc.vpc.id
+  vpc_id            = module.profiling_vpc.vpc.id
 
   cidr_block = cidrsubnet(
-    module.edc_vpc.vpc.cidr_block,
+    module.profiling_vpc.vpc.cidr_block,
     3,
     count.index,
   )
@@ -48,12 +48,12 @@ resource "aws_subnet" "vpc_endpoints" {
 resource "aws_security_group" "internet_proxy_endpoint" {
   name        = "proxy_vpc_endpoint"
   description = "Control access to the Internet Proxy VPC Endpoint"
-  vpc_id      = module.edc_vpc.vpc.id
+  vpc_id      = module.profiling_vpc.vpc.id
   tags        = local.common_tags
 }
 
 resource "aws_vpc_endpoint" "internet_proxy" {
-  vpc_id              = module.edc_vpc.vpc.id
+  vpc_id              = module.profiling_vpc.vpc.id
   service_name        = data.terraform_remote_state.internet_egress.outputs.internet_proxy_service.service_name
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.internet_proxy_endpoint.id]
@@ -62,13 +62,13 @@ resource "aws_vpc_endpoint" "internet_proxy" {
 }
 
 
-resource "aws_subnet" "edc" {
+resource "aws_subnet" "profiling" {
   count             = length(data.aws_availability_zones.available.names)
   availability_zone = data.aws_availability_zones.available.names[count.index]
-  vpc_id            = module.edc_vpc.vpc.id
+  vpc_id            = module.profiling_vpc.vpc.id
 
   cidr_block = cidrsubnet(
-    module.edc_vpc.vpc.cidr_block,
+    module.profiling_vpc.vpc.cidr_block,
     3,
     count.index + length(aws_subnet.vpc_endpoints),
   )
@@ -76,18 +76,18 @@ resource "aws_subnet" "edc" {
   tags = merge(
     local.common_tags,
     {
-      "Name" = "edc"
+      "Name" = "profiling"
     },
   )
 }
 
-resource "aws_route_table" "edc" {
-  vpc_id = module.edc_vpc.vpc.id
+resource "aws_route_table" "profiling" {
+  vpc_id = module.profiling_vpc.vpc.id
   tags   = local.common_tags
 }
 
-resource "aws_route_table_association" "edc" {
-  count          = length(aws_subnet.edc)
-  subnet_id      = element(aws_subnet.edc.*.id, count.index)
-  route_table_id = aws_route_table.edc.id
+resource "aws_route_table_association" "profiling" {
+  count          = length(aws_subnet.profiling)
+  subnet_id      = element(aws_subnet.profiling.*.id, count.index)
+  route_table_id = aws_route_table.profiling.id
 }
