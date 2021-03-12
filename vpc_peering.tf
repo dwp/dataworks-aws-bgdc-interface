@@ -12,3 +12,10 @@ resource "aws_vpc_peering_connection" "peer_with_bgdc" {
     },
   )
 }
+
+resource "aws_route" "peer_with_bgdc" {
+  count                     = local.peer_with_bgdc[local.environment] ? length(local.peer_with_bgdc_source_cidrs[local.environment]) : 0
+  route_table_id            = aws_route_table.profiling.id
+  destination_cidr_block    = local.peer_with_bgdc_source_cidrs[local.environment][count.index]
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer_with_bgdc[0].id
+}
