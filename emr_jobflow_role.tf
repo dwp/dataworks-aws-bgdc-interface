@@ -273,7 +273,10 @@ data "aws_iam_policy_document" "bgdc_interface_various" {
       "elasticloadbalancing:RegisterTargets",
     ]
 
-    resources = [aws_lb_target_group.bgdc_interface_hive[each.key].arn]
+    resources = [
+      aws_lb_target_group.bgdc_interface_hive[each.key].arn,
+      aws_lb_target_group.bgdc_tactical.arn,
+    ]
   }
 }
 
