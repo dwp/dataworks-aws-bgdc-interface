@@ -68,6 +68,10 @@ Configurations:
     "javax.jdo.option.ConnectionUserName": "${hive_metastore_username}"
     "javax.jdo.option.ConnectionPassword": "${hive_metastore_secret_name}"
     "hive.metastore.client.socket.timeout": "7200"
+    "hive.exec.failure.hooks": "org.apache.hadoop.hive.ql.hooks.ATSHook"
+    "hive.exec.post.hooks": "org.apache.hadoop.hive.ql.hooks.ATSHook"
+    "hive.exec.pre.hooks": "org.apache.hadoop.hive.ql.hooks.ATSHook"
+    "hive_timeline_logging_enabled": "true"
     %{~ endif ~}
 
 - Classification: "emrfs-site"
@@ -87,3 +91,7 @@ Configurations:
       "PYSPARK_PYTHON": "/usr/bin/python3"
       "S3_PUBLISH_BUCKET": "${s3_published_bucket}"
       "S3_HTME_BUCKET": "${s3_htme_bucket}"
+
+- Classification: "tez-site"
+  Properties:
+    "tez.am.resource.memory.mb": "1024"
