@@ -190,4 +190,35 @@ locals {
 
   cw_agent_profiling_node_log_group_name = "/app/profiling_node"
 
+  peer_with_bgdc = {
+    development = true
+    qa          = false
+    integration = false
+    preprod     = false
+    production  = false
+  }
+
+  peer_with_bgdc_vpc_id = {
+    development = local.bgdc_vpc_peering.sandbox.vpc_id
+    qa          = "undef"
+    integration = "undef"
+    preprod     = "undef"
+    production  = "undef"
+  }
+
+  peer_with_bgdc_owner_id = {
+    development = local.bgdc_vpc_peering.sandbox.owner
+    qa          = "undef"
+    integration = "undef"
+    preprod     = "undef"
+    production  = "undef"
+  }
+
+  peer_with_bgdc_source_cidrs = {
+    development = local.bgdc_vpc_peering.sandbox.subnet_cidr_blocks
+    qa          = ["127.0.0.1/32"] // Terraform won't accept "undef" as a CIDR value
+    integration = ["127.0.0.1/32"] // Terraform won't accept "undef" as a CIDR value
+    preprod     = ["127.0.0.1/32"] // Terraform won't accept "undef" as a CIDR value
+    production  = ["127.0.0.1/32"] // Terraform won't accept "undef" as a CIDR value
+  }
 }
