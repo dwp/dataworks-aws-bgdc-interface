@@ -281,6 +281,26 @@ resource "aws_security_group_rule" "hive_metastore_from_bgdc" {
   source_security_group_id = data.terraform_remote_state.adg.outputs.hive_metastore.security_group.id
 }
 
+resource "aws_security_group_rule" "bgdc_to_hive_metastore_v2" {
+  description              = "BGDC to Hive Metastore"
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.bgdc_common.id
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
+}
+
+resource "aws_security_group_rule" "hive_metastore_v2_from_bgdc" {
+  description              = "Hive Metastore from BGDC"
+  type                     = "egress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.bgdc_common.id
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
+}
+
 output "bgdc_common_sg" {
   value = aws_security_group.bgdc_common
 }
