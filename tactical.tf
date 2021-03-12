@@ -8,10 +8,10 @@ resource "aws_lb" "bgdc_tactical" {
   enable_cross_zone_load_balancing = true
 
   tags = merge(
-  local.common_tags,
-  {
-    Name = "bgdc-tactical"
-  },
+    local.common_tags,
+    {
+      Name = "bgdc-tactical"
+    },
   )
 }
 
