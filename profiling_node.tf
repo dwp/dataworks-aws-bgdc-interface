@@ -219,7 +219,7 @@ resource "aws_autoscaling_group" "profiling_node" {
   health_check_type         = "EC2"
   force_delete              = true
   suspended_processes       = ["AZRebalance"]
-  vpc_zone_identifier       = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
+  vpc_zone_identifier       = aws_subnet.profiling.*.id
 
   lifecycle {
     create_before_destroy = true
@@ -256,8 +256,8 @@ data "template_file" "profiling_node" {
     private_key_alias     = local.environment
     truststore_aliases    = local.truststore_aliases[local.environment]
     truststore_certs      = local.truststore_certs[local.environment]
-    internet_proxy        = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
-    non_proxied_endpoints = join(",", data.terraform_remote_state.internal_compute.outputs.vpc.vpc.no_proxy_list)
+    internet_proxy        = aws_vpc_endpoint.internet_proxy.dns_entry[0].dns_name
+    non_proxied_endpoints = join(",", module.profiling_vpc.no_proxy_list)
     s3_artefact_bucket_id = data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.id
     s3_scripts_bucket     = data.terraform_remote_state.common.outputs.config_bucket.id
     environment_name      = local.environment
@@ -267,14 +267,14 @@ data "template_file" "profiling_node" {
 resource "aws_security_group" "profiling_node" {
   name        = "profiling_node"
   description = "Control access to and from the hbase-to-mongo-exporter Hosts"
-  vpc_id      = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  vpc_id      = module.profiling_vpc.vpc.id
   tags        = local.common_tags
 }
 
 resource "aws_security_group_rule" "profiling_node_egress_internet_proxy" {
   description              = "profiling_node Host to Internet Proxy (for ACM-PCA)"
   type                     = "egress"
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
+  source_security_group_id = aws_security_group.internet_proxy_endpoint.id
   protocol                 = "tcp"
   from_port                = 3128
   to_port                  = 3128
@@ -288,13 +288,13 @@ resource "aws_security_group_rule" "profiling_node_ingress_internet_proxy" {
   to_port                  = 3128
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.profiling_node.id
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
+  security_group_id        = aws_security_group.internet_proxy_endpoint.id
 }
 
 resource "aws_security_group_rule" "profiling_node_egress_s3" {
   description       = "Allow profiling_node to reach S3"
   type              = "egress"
-  prefix_list_ids   = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.prefix_list_ids.s3]
+  prefix_list_ids   = [module.profiling_vpc.prefix_list_ids.s3]
   protocol          = "tcp"
   from_port         = 443
   to_port           = 443
@@ -302,12 +302,12 @@ resource "aws_security_group_rule" "profiling_node_egress_s3" {
 }
 
 resource "aws_security_group_rule" "profiling_node_egress_s3_http" {
-  type      = "egress"
-  from_port = 80
-  to_port   = 80
-  protocol  = "tcp"
-
-  prefix_list_ids   = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.prefix_list_ids.s3]
+  description       = "Allow profiling_node to reach S3"
+  type              = "egress"
+  prefix_list_ids   = [module.profiling_vpc.prefix_list_ids.s3]
+  protocol          = "tcp"
+  from_port         = 80
+  to_port           = 80
   security_group_id = aws_security_group.profiling_node.id
 }
 
@@ -318,14 +318,14 @@ resource "aws_security_group_rule" "profiling_node_to_vpc_endpoints" {
   security_group_id        = aws_security_group.profiling_node.id
   to_port                  = 443
   type                     = "egress"
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id
+  source_security_group_id = module.profiling_vpc.interface_vpce_sg_id
 }
 
 resource "aws_security_group_rule" "vpc_endpoints_from_profiling_node" {
   description              = "Allow HTTPS traffic from Analytical Dataset Generator"
   from_port                = 443
   protocol                 = "tcp"
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id
+  security_group_id        = module.profiling_vpc.interface_vpce_sg_id
   to_port                  = 443
   type                     = "ingress"
   source_security_group_id = aws_security_group.profiling_node.id
@@ -338,7 +338,7 @@ resource "aws_security_group_rule" "profiling_node_to_hive" {
   to_port                  = 10443
   protocol                 = "tcp"
   security_group_id        = aws_security_group.profiling_node.id
-  source_security_group_id = aws_security_group.bgdc_master.id
+  source_security_group_id = aws_security_group.bgdc_interface_vpce.id
 }
 
 resource "aws_security_group_rule" "hive_from_profiling_node" {
@@ -347,7 +347,7 @@ resource "aws_security_group_rule" "hive_from_profiling_node" {
   from_port                = 10443
   to_port                  = 10443
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.bgdc_master.id
+  security_group_id        = aws_security_group.bgdc_interface_vpce.id
   source_security_group_id = aws_security_group.profiling_node.id
 }
 
