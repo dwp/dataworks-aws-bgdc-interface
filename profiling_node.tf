@@ -211,7 +211,7 @@ resource "aws_launch_template" "profiling_node" {
 }
 
 resource "aws_autoscaling_group" "profiling_node" {
-  name                      = "profiling_node"
+  name                      = aws_launch_template.profiling_node.name
   min_size                  = 1
   desired_capacity          = 1
   max_size                  = 1
@@ -220,6 +220,10 @@ resource "aws_autoscaling_group" "profiling_node" {
   force_delete              = true
   suspended_processes       = ["AZRebalance"]
   vpc_zone_identifier       = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   launch_template {
     id      = aws_launch_template.profiling_node.id

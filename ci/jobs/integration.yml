@@ -14,6 +14,10 @@ jobs:
         trigger: true
         passed:
           - qa
+      - get: bgdc-base-ami
+        trigger: false
+        passed:
+          - qa
       - .: (( inject meta.plan.terraform-bootstrap ))
       - .: (( inject meta.plan.terraform-apply ))
         params:

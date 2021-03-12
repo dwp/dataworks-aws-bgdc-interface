@@ -77,6 +77,21 @@ locals {
           {{ key }} = "{{ value }}"{% endfor %}
       } {%- endfor %}
   }
+
+  bgdc_vpc_peering = {
+    {%- for environment, params in bgdc_vpc_peering.items() %}
+    {{ environment }} = {
+      {%- for key, value in params.items() %}
+        {%- if key == 'subnet_cidr_blocks' %}
+        subnet_cidr_blocks = [ {%- for item in value %} "{{ item }}", {%- endfor %} ]
+        {%- else %}
+        {{ key }} = "{{ value }}"
+        {%- endif %}
+      {%- endfor %}
+    }
+    {%- endfor %}
+  }
+
 }
 
 data "terraform_remote_state" "crypto" {
@@ -200,6 +215,20 @@ data "terraform_remote_state" "mgmt_ca" {
     region         = "{{terraform.state_file_region}}"
     encrypt        = true
     kms_key_id     = "arn:aws:kms:{{state_file_region}}:{{state_file_account}}:key/{{state_file_kms_key}}"
+    dynamodb_table = "remote_state_locks"
+  }
+}
+
+data "terraform_remote_state" "internet_egress" {
+  backend   = "s3"
+  workspace = local.management_workspace[local.management_account[local.environment]]
+
+  config = {
+    bucket         = "{{terraform.state_file_bucket}}"
+    key            = "terraform/dataworks/aws-internet-egress.tfstate"
+    region         = "{{terraform.state_file_region}}"
+    encrypt        = true
+    kms_key_id     = "arn:aws:kms:{{terraform.state_file_region}}:{{terraform.state_file_account}}:key/{{terraform.state_file_kms_key}}"
     dynamodb_table = "remote_state_locks"
   }
 }
