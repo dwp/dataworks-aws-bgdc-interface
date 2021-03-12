@@ -24,7 +24,7 @@ Both clusters can be started and stopped on-demand using CI admin jobs. The mech
 
 ## Password rotation
 
-BGDC Interface uses a read-only MySQL user to access Hive Metastore Aurora database. The password for this user can be rotated using provided CI jobs.
+BGDC Interface uses a read-only MySQL user to access Hive Metastore Aurora database. The password for this user can be rotated using  CI jobs defined in `aws-internal-compute` repo and available in the associated pipeline. Please note that rotation jobs in https://github.com/dwp/aws-analytical-dataset-generation hav been deprecated.
 
 ## Protecting Hive endpoint with TLS encryption and mutual authentication
 
