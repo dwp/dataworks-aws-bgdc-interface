@@ -359,7 +359,7 @@ resource "aws_security_group_rule" "profiling_node_intradomain_static_in" {
   from_port         = 6005
   to_port           = 6009
   protocol          = "tcp"
-  security_group_id = aws_security_group.bgdc_interface_vpce.id
+  security_group_id = aws_security_group.profiling_node.id
   cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
 }
 
@@ -370,7 +370,7 @@ resource "aws_security_group_rule" "profiling_node_intradomain_dynamic_in" {
   from_port         = 6014
   to_port           = 6114
   protocol          = "tcp"
-  security_group_id = aws_security_group.bgdc_interface_vpce.id
+  security_group_id = aws_security_group.profiling_node.id
   cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
 }
 
@@ -381,7 +381,7 @@ resource "aws_security_group_rule" "profiling_node_intradomain_static_out" {
   from_port         = 6005
   to_port           = 6009
   protocol          = "tcp"
-  security_group_id = aws_security_group.bgdc_interface_vpce.id
+  security_group_id = aws_security_group.profiling_node.id
   cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
 }
 
@@ -392,7 +392,7 @@ resource "aws_security_group_rule" "profiling_node_intradomain_dynamic_out" {
   from_port         = 6014
   to_port           = 6114
   protocol          = "tcp"
-  security_group_id = aws_security_group.bgdc_interface_vpce.id
+  security_group_id = aws_security_group.profiling_node.id
   cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
 }
 
