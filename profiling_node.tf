@@ -332,6 +332,17 @@ resource "aws_security_group_rule" "hive_from_profiling_node" {
 }
 
 # Allow Informatica EDC intra-domain traffic
+resource "aws_security_group_rule" "profiling_node_rds" {
+  count             = local.peer_with_bgdc[local.environment] ? 1 : 0
+  description       = "Profiling node to Informatica Oracle"
+  type              = "egress"
+  from_port         = 1521
+  to_port           = 1521
+  protocol          = "tcp"
+  security_group_id = aws_security_group.profiling_node.id
+  cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
+}
+
 resource "aws_security_group_rule" "profiling_node_intradomain_secure" {
   count             = local.peer_with_bgdc[local.environment] ? 1 : 0
   description       = "Profiling node intradomain"
