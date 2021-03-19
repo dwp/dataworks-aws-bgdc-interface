@@ -1,15 +1,13 @@
 module "profiling_vpc" {
-  source         = "dwp/vpc/aws"
-  version        = "3.0.9"
-  vpc_name       = "profiling"
-  region         = var.region
-  vpc_cidr_block = local.cidr_block[local.environment].profiling-vpc
-  gateway_vpce_route_table_ids = [
-  ]
-  interface_vpce_source_security_group_ids = [
-  ]
-  interface_vpce_subnet_ids = aws_subnet.vpc_endpoints.*.id
-  common_tags               = local.common_tags
+  source                                   = "dwp/vpc/aws"
+  version                                  = "3.0.9"
+  vpc_name                                 = "profiling"
+  region                                   = var.region
+  vpc_cidr_block                           = local.cidr_block[local.environment].profiling-vpc
+  gateway_vpce_route_table_ids             = [aws_route_table.profiling.id]
+  interface_vpce_source_security_group_ids = [aws_security_group.profiling_node.id]
+  interface_vpce_subnet_ids                = aws_subnet.vpc_endpoints.*.id
+  common_tags                              = local.common_tags
 
   aws_vpce_services = [
     "ssm",

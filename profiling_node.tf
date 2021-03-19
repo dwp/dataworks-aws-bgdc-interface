@@ -311,26 +311,6 @@ resource "aws_security_group_rule" "profiling_node_egress_s3_http" {
   security_group_id = aws_security_group.profiling_node.id
 }
 
-resource "aws_security_group_rule" "profiling_node_to_vpc_endpoints" {
-  description              = "Allow HTTPS traffic to VPC endpoints"
-  from_port                = 443
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.profiling_node.id
-  to_port                  = 443
-  type                     = "egress"
-  source_security_group_id = module.profiling_vpc.interface_vpce_sg_id
-}
-
-resource "aws_security_group_rule" "vpc_endpoints_from_profiling_node" {
-  description              = "Allow HTTPS traffic from Analytical Dataset Generator"
-  from_port                = 443
-  protocol                 = "tcp"
-  security_group_id        = module.profiling_vpc.interface_vpce_sg_id
-  to_port                  = 443
-  type                     = "ingress"
-  source_security_group_id = aws_security_group.profiling_node.id
-}
-
 resource "aws_security_group_rule" "profiling_node_to_hive" {
   description              = "Profiling node to Hive endpoint"
   type                     = "egress"
@@ -352,6 +332,39 @@ resource "aws_security_group_rule" "hive_from_profiling_node" {
 }
 
 # Allow Informatica EDC intra-domain traffic
+resource "aws_security_group_rule" "profiling_node_intradomain_secure" {
+  count             = local.peer_with_bgdc[local.environment] ? 1 : 0
+  description       = "Profiling node intradomain"
+  type              = "ingress"
+  from_port         = 8443
+  to_port           = 8443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.profiling_node.id
+  cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
+}
+
+resource "aws_security_group_rule" "profiling_node_intradomain_dis_in" {
+  count             = local.peer_with_bgdc[local.environment] ? 1 : 0
+  description       = "Profiling node intradomain Data Integration Service"
+  type              = "ingress"
+  from_port         = 8095
+  to_port           = 8095
+  protocol          = "tcp"
+  security_group_id = aws_security_group.profiling_node.id
+  cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
+}
+
+resource "aws_security_group_rule" "profiling_node_intradomain_dis2_in" {
+  count             = local.peer_with_bgdc[local.environment] ? 1 : 0
+  description       = "Profiling node intradomain Data Integration Service"
+  type              = "ingress"
+  from_port         = 8195
+  to_port           = 8195
+  protocol          = "tcp"
+  security_group_id = aws_security_group.profiling_node.id
+  cidr_blocks       = local.peer_with_bgdc_source_cidrs[local.environment]
+}
+
 resource "aws_security_group_rule" "profiling_node_intradomain_static_in" {
   count             = local.peer_with_bgdc[local.environment] ? 1 : 0
   description       = "Profiling node intradomain"
