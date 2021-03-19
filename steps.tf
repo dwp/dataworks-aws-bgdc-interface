@@ -20,5 +20,8 @@ resource "aws_s3_bucket_object" "ghostunnel-setup" {
       ghostunnel_binary_name         = local.ghostunnel_binary_name
       ghostunnel_service_script_name = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.ghostunnel_service[each.key].key)
       target_group_arn               = aws_lb_target_group.bgdc_interface_hive[each.key].arn
+      # Also register in tactical ELB
+      register_in_tactical      = each.value == "bgdc-interface" ? "true" : "false"
+      tactical_target_group_arn = aws_lb_target_group.bgdc_tactical.arn
   })
 }

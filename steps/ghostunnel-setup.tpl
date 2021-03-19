@@ -39,3 +39,8 @@ sudo service ghostunnel_service start
 
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 aws elbv2 register-targets --target-group-arn ${target_group_arn} --targets Id=$INSTANCE_ID
+
+if [[ "${register_in_tactical}" = "true" ]]; then
+  aws elbv2 register-targets --target-group-arn ${tactical_target_group_arn} --targets Id=$INSTANCE_ID
+fi
+

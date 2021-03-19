@@ -14,13 +14,17 @@ Two clusters are built:
   * only has access to metadata DB
   * accessed by BGDC Domain node to import Hive schema 
 
-![Overview](docs/overview.png)
+![Design overview](docs/bgdc-dwx-design-v3.png)
+
+Cluster design in more detail:
+
+![Cluster overview](docs/overview.png)
 
 Both clusters can be started and stopped on-demand using CI admin jobs. The mechanism for this involving an EMR Launcher Lambda is similar to the one used in [Analytical Dataset Generation](https://github.com/dwp/aws-analytical-dataset-generation).
 
 ## Password rotation
 
-BGDC Interface uses a read-only MySQL user to access Hive Metastore Aurora database. The password for this user can be rotated using provided CI jobs.
+BGDC Interface uses a read-only MySQL user to access Hive Metastore Aurora database. The password for this user can be rotated using  CI jobs defined in `aws-internal-compute` repo and available in the associated pipeline. Please note that rotation jobs in https://github.com/dwp/aws-analytical-dataset-generation hav been deprecated.
 
 ## Protecting Hive endpoint with TLS encryption and mutual authentication
 
