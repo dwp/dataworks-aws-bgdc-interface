@@ -8,5 +8,5 @@ export HTTPS_PROXY="$https_proxy"
 export no_proxy="${non_proxied_endpoints}"
 export NO_PROXY="$no_proxy"
 
-sudo service firewalld stop
-sudo service firewalld disable
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
