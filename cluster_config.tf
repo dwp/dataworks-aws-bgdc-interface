@@ -80,28 +80,10 @@ resource "aws_s3_bucket_object" "configurations" {
       s3_log_bucket                       = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
       s3_log_prefix                       = local.s3_log_prefix[each.key]
       s3_published_bucket                 = data.terraform_remote_state.common.outputs.published_bucket.id
-      s3_ingest_bucket                    = data.terraform_remote_state.ingest.outputs.s3_buckets.input_bucket
-      hbase_root_path                     = local.hbase_root_path
-      proxy_no_proxy                      = replace(replace(local.no_proxy, ",", "|"), ".s3", "*.s3")
-      proxy_http_host                     = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
-      proxy_http_port                     = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
-      proxy_https_host                    = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
-      proxy_https_port                    = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
-      emrfs_metadata_tablename            = local.emrfs_metadata_tablename
-      s3_htme_bucket                      = data.terraform_remote_state.ingest.outputs.s3_buckets.htme_bucket
-      spark_executor_cores                = local.spark_executor_cores
-      spark_executor_memory               = local.spark_executor_memory
-      spark_yarn_executor_memory_overhead = local.spark_yarn_executor_memory_overhead
-      spark_driver_memory                 = local.spark_driver_memory
-      spark_driver_cores                  = local.spark_driver_cores
-      spark_executor_instances            = local.spark_executor_instances
-      spark_default_parallelism           = local.spark_default_parallelism
-      spark_kyro_buffer                   = local.spark_kyro_buffer
       hive_metastore_username             = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.username
       hive_metastore_secret_name          = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.secret_name
       hive_metastore_endpoint             = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster.endpoint
       hive_metastore_database_name        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster.database_name
-      hive_metastore_backend              = local.hive_metastore_backend[local.environment]
     }
   )
 }
