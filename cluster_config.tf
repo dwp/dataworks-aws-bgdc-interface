@@ -77,13 +77,13 @@ resource "aws_s3_bucket_object" "configurations" {
   key    = "${local.emr_config_s3_prefix[each.key]}/configurations.yaml"
   content = templatefile("${path.module}/cluster_config/configurations.yaml.tpl",
     {
-      s3_log_bucket                       = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
-      s3_log_prefix                       = local.s3_log_prefix[each.key]
-      s3_published_bucket                 = data.terraform_remote_state.common.outputs.published_bucket.id
-      hive_metastore_username             = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.username
-      hive_metastore_secret_name          = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.secret_name
-      hive_metastore_endpoint             = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster.endpoint
-      hive_metastore_database_name        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster.database_name
+      s3_log_bucket                = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
+      s3_log_prefix                = local.s3_log_prefix[each.key]
+      s3_published_bucket          = data.terraform_remote_state.common.outputs.published_bucket.id
+      hive_metastore_username      = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.username
+      hive_metastore_secret_name   = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.bgdc.secret_name
+      hive_metastore_endpoint      = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster.endpoint
+      hive_metastore_database_name = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster.database_name
     }
   )
 }
