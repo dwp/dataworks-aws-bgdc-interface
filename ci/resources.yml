@@ -66,3 +66,14 @@ resources:
       repository: ghostunnel
       access_token: ((dataworks-secrets.concourse_github_pat))
     check_every: 720h
+
+  - name: dataworks-aws-bgdc-interface-update-pipeline
+    type: git
+    source:
+      branch: master
+      uri: https://github.com/dwp/dataworks-aws-bgdc-interface.git
+      paths:
+        - ci/*
+        - aviator.yml
+    webhook_token: ((dataworks.concourse_github_webhook_token))
+    check_every: 720h 
