@@ -15,7 +15,7 @@ data "aws_ami" "bgdc_nginx_latest" {
 }
 
 resource "aws_launch_configuration" "nginx_conf" {
-  name            = "dwx_bgdc_nginx"
+  name            = "dwx-bgdc-nginx"
   image_id        = data.aws_ami.bgdc_nginx_latest.id
   instance_type   = "t2.medium"
   security_groups = [aws_security_group.nginx-bgdc-dwx.id]
@@ -35,7 +35,7 @@ resource "aws_launch_configuration" "nginx_conf" {
 }
 
 resource "aws_autoscaling_group" "nginx_asg" {
-  name                      = "dwx_bgdc_nginx"
+  name                      = "dwx-bgdc-nginx"
   max_size                  = 2
   min_size                  = 2
   health_check_grace_period = 300
@@ -137,13 +137,13 @@ resource "aws_security_group_rule" "allow_http_from_target_group" {
   security_group_id        = aws_security_group.nginx-bgdc-dwx.id
   to_port                  = 80
   type                     = "ingress"
-  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.lb : eni.private_ip])
+  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
     
                              
 }
 
 
-data "aws_network_interface" "lb" {
+data "aws_network_interface" "dwx_bdgc_nlb_ni" {
   for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
 
   filter {
