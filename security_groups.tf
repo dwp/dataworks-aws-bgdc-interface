@@ -96,65 +96,65 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   security_group_id        = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
 }
 
-resource "aws_security_group_rule" "egress_hbase_zookeeper" {
-  description              = "Ingest-HBase Zookeeper requests"
-  type                     = "egress"
-  from_port                = 2181
-  to_port                  = 2181
-  protocol                 = "tcp"
-  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
-  security_group_id        = aws_security_group.bgdc_common.id
-}
+//resource "aws_security_group_rule" "egress_hbase_zookeeper" {
+//  description              = "Ingest-HBase Zookeeper requests"
+//  type                     = "egress"
+//  from_port                = 2181
+//  to_port                  = 2181
+//  protocol                 = "tcp"
+//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = aws_security_group.bgdc_common.id
+//}
 
-resource "aws_security_group_rule" "ingress_hbase_zookeeper" {
-  description              = "BGDC requests to ZooKeeper"
-  type                     = "ingress"
-  from_port                = 2181
-  to_port                  = 2181
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.bgdc_common.id
-  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
-}
+//resource "aws_security_group_rule" "ingress_hbase_zookeeper" {
+//  description              = "BGDC requests to ZooKeeper"
+//  type                     = "ingress"
+//  from_port                = 2181
+//  to_port                  = 2181
+//  protocol                 = "tcp"
+//  source_security_group_id = aws_security_group.bgdc_common.id
+//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//}
 
-resource "aws_security_group_rule" "egress_hbase_master" {
-  description              = "Ingest-HBase Master requests"
-  type                     = "egress"
-  from_port                = 16000
-  to_port                  = 16000
-  protocol                 = "tcp"
-  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
-  security_group_id        = aws_security_group.bgdc_common.id
-}
+//resource "aws_security_group_rule" "egress_hbase_master" {
+//  description              = "Ingest-HBase Master requests"
+//  type                     = "egress"
+//  from_port                = 16000
+//  to_port                  = 16000
+//  protocol                 = "tcp"
+//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = aws_security_group.bgdc_common.id
+//}
 
-resource "aws_security_group_rule" "ingress_hbase_master" {
-  description              = "BGDC requests to HBase Master"
-  type                     = "ingress"
-  from_port                = 16000
-  to_port                  = 16000
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.bgdc_common.id
-  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
-}
+//resource "aws_security_group_rule" "ingress_hbase_master" {
+//  description              = "BGDC requests to HBase Master"
+//  type                     = "ingress"
+//  from_port                = 16000
+//  to_port                  = 16000
+//  protocol                 = "tcp"
+//  source_security_group_id = aws_security_group.bgdc_common.id
+//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//}
 
-resource "aws_security_group_rule" "egress_hbase_regionserver" {
-  description              = "Ingest-HBase RegionServer traffic"
-  type                     = "egress"
-  from_port                = 16020
-  to_port                  = 16020
-  protocol                 = "tcp"
-  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
-  security_group_id        = aws_security_group.bgdc_common.id
-}
-
-resource "aws_security_group_rule" "ingress_hbase_regionserver" {
-  description              = "BGDC requests to HBase Region Server"
-  type                     = "ingress"
-  from_port                = 16020
-  to_port                  = 16020
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.bgdc_common.id
-  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
-}
+//resource "aws_security_group_rule" "egress_hbase_regionserver" {
+//  description              = "Ingest-HBase RegionServer traffic"
+//  type                     = "egress"
+//  from_port                = 16020
+//  to_port                  = 16020
+//  protocol                 = "tcp"
+//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = aws_security_group.bgdc_common.id
+//}
+//
+//resource "aws_security_group_rule" "ingress_hbase_regionserver" {
+//  description              = "BGDC requests to HBase Region Server"
+//  type                     = "ingress"
+//  from_port                = 16020
+//  to_port                  = 16020
+//  protocol                 = "tcp"
+//  source_security_group_id = aws_security_group.bgdc_common.id
+//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//}
 
 resource "aws_security_group_rule" "egress_bgdc_to_dks" {
   description       = "requests to the DKS"

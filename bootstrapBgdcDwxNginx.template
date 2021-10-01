@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export NGINX_LISTEN_PORT=${BgdcDwxListener}
+
+export NGINX_DWX=${BgdcDwxNginxDns}
+
+export NGINX_DWX_PORT=${BgdcDwxNginxPort}
+
+export NGINX_TEMPLATE_NAME=dwx_nginx.template
+
+
+
+envsubst < /home/ec2-user/files/bootstrapDWX.template > /home/ec2-user/files/bootstrap.sh
+
+chmod u+x /home/ec2-user/files/bootstrap.sh
+
+systemctl stop httpd
+
+systemctl disable httpd 
+
+/home/ec2-user/files/bootstrap.sh
