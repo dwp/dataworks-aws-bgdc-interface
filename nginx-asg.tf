@@ -85,7 +85,6 @@ resource "aws_lb_target_group" "dwx_bdgc_nginx_nlb_tg" {
     protocol          = "TCP"
     healthy_threshold = 3
     unhealthy_threshold = 3
-    timeout = 10
     interval = 30
   }
 }
