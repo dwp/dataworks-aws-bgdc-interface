@@ -129,32 +129,32 @@ resource "aws_security_group" "nginx-bgdc-dwx" {
 }
 
 
-resource "aws_security_group_rule" "allow_http_from_target_group" {
-  description              = "HTTP from target group"
-  from_port                = 80
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
-  to_port                  = 80
-  type                     = "ingress"
-  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
-    
-                             
-}
+//resource "aws_security_group_rule" "allow_http_from_target_group" {
+//  description              = "HTTP from target group"
+//  from_port                = 80
+//  protocol                 = "tcp"
+//  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
+//  to_port                  = 80
+//  type                     = "ingress"
+//  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
+//    
+//                             
+//}
+//
 
-
-data "aws_network_interface" "dwx_bdgc_nlb_ni" {
-  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
-
-  filter {
-    name   = "description"
-    values = ["ELB ${aws_lb.dwx_bdgc_nginx_nlb.arn_suffix}"]
-  }
-
-  filter {
-    name   = "subnet-id"
-    values = [each.value]
-  }
-}
+//data "aws_network_interface" "dwx_bdgc_nlb_ni" {
+//  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
+//
+//  filter {
+//    name   = "description"
+//    values = ["ELB ${aws_lb.dwx_bdgc_nginx_nlb.arn_suffix}"]
+//  }
+//
+//  filter {
+//    name   = "subnet-id"
+//    values = [each.value]
+//  }
+//}
 
 
 
