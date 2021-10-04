@@ -1,22 +1,23 @@
-data "aws_ami" "bgdc_nginx_latest" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["bgdc-nginx-ami-main-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = [local.bgdc_account.test]
-}
+//data "aws_ami" "bgdc_nginx_latest" {
+//  most_recent = true
+//
+//  filter {
+//    name   = "name"
+//    values = ["bgdc-nginx-ami-main-*"]
+//  }
+//
+//  filter {
+//    name   = "virtualization-type"
+//    values = ["hvm"]
+//  }
+//
+//  owners = [local.bgdc_account.test]
+//}
 
 resource "aws_launch_configuration" "nginx_conf" {
   name            = "dwx-bgdc-nginx"
-  image_id        = data.aws_ami.bgdc_nginx_latest.id
+  //image_id        = data.aws_ami.bgdc_nginx_latest.id
+  image_id        = "ami-01010101010101"
   instance_type   = "t2.medium"
   security_groups = [aws_security_group.nginx-bgdc-dwx.id]
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
@@ -129,32 +130,32 @@ resource "aws_security_group" "nginx-bgdc-dwx" {
 }
 
 
-//resource "aws_security_group_rule" "allow_http_from_target_group" {
-//  description              = "HTTP from target group"
-//  from_port                = 80
-//  protocol                 = "tcp"
-//  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
-//  to_port                  = 80
-//  type                     = "ingress"
-//  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
-//    
-//                             
-//}
-//
+resource "aws_security_group_rule" "allow_http_from_target_group" {
+  description              = "HTTP from target group"
+  from_port                = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
+  to_port                  = 80
+  type                     = "ingress"
+  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
+    
+                             
+}
 
-//data "aws_network_interface" "dwx_bdgc_nlb_ni" {
-//  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
-//
-//  filter {
-//    name   = "description"
-//    values = ["ELB ${aws_lb.dwx_bdgc_nginx_nlb.arn_suffix}"]
-//  }
-//
-//  filter {
-//    name   = "subnet-id"
-//    values = [each.value]
-//  }
-//}
+
+data "aws_network_interface" "dwx_bdgc_nlb_ni" {
+  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
+
+  filter {
+    name   = "description"
+    values = ["ELB ${aws_lb.dwx_bdgc_nginx_nlb.arn_suffix}"]
+  }
+
+  filter {
+    name   = "subnet-id"
+    values = [each.value]
+  }
+}
 
 
 
