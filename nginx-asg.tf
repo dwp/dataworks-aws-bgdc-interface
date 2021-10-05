@@ -1,23 +1,22 @@
-//data "aws_ami" "bgdc_nginx_latest" {
-//  most_recent = true
-//
-//  filter {
-//    name   = "name"
-//    values = ["bgdc-nginx-ami-main-*"]
-//  }
-//
-//  filter {
-//    name   = "virtualization-type"
-//    values = ["hvm"]
-//  }
-//
-//  owners = [local.bgdc_account.test]
-//}
+data "aws_ami" "bgdc_nginx_latest" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["bgdc-nginx-ami-main-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = [local.bgdc_account.test]
+}
 
 resource "aws_launch_configuration" "nginx_conf" {
   name            = "dwx-bgdc-nginx"
-  //image_id        = data.aws_ami.bgdc_nginx_latest.id
-  image_id        = "ami-0c2a2481a170caf82"
+  image_id        = data.aws_ami.bgdc_nginx_latest.id
   instance_type   = "t2.medium"
   security_groups = [aws_security_group.nginx-bgdc-dwx.id]
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
