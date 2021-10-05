@@ -15,7 +15,7 @@ data "aws_ami" "bgdc_nginx_latest" {
 }
 
 resource "aws_launch_configuration" "nginx_conf" {
-  name            = "dwx-bgdc-nginx"
+  name_prefix     = "dwx-bgdc-nginx-"
   image_id        = data.aws_ami.bgdc_nginx_latest.id
   instance_type   = "t2.medium"
   security_groups = [aws_security_group.nginx-bgdc-dwx.id]
@@ -29,7 +29,7 @@ resource "aws_launch_configuration" "nginx_conf" {
   }
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 
 }
