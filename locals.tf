@@ -93,8 +93,6 @@ locals {
     production  = "TERMINATE_CLUSTER"
   }
 
-  hbase_root_path = format("s3://%s", data.terraform_remote_state.ingest.outputs.s3_buckets.hbase_rootdir)
-
   emrfs_metadata_tablename = "Analytical_Dataset_Generation_Metadata"
   data_pipeline_metadata   = data.terraform_remote_state.internal_compute.outputs.data_pipeline_metadata_dynamo.name
 

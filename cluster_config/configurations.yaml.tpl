@@ -19,6 +19,7 @@ Configurations:
     "hive.exec.post.hooks": "org.apache.hadoop.hive.ql.hooks.ATSHook"
     "hive.exec.pre.hooks": "org.apache.hadoop.hive.ql.hooks.ATSHook"
     "hive_timeline_logging_enabled": "true"
+    "hive.compactor.initiator.on" : "false"
 
 - Classification: "tez-site"
   Properties:
