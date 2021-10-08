@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "bgdc_interface_hive" {
 
 # A workaround to allow traffic from NLB health check without allowing the whole VPC CIDR
 data "aws_network_interface" "lb_eni_bgdc_interface" {
-  count = "${length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)}"
+  count = length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
 
   filter {
     name   = "description"
@@ -50,12 +50,12 @@ data "aws_network_interface" "lb_eni_bgdc_interface" {
 
   filter {
     name   = "subnet-id"
-    values = ["${element(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids, count.index)}"]
+    values = [element(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids, count.index)]
   }
 }
 
 data "aws_network_interface" "lb_eni_bgdc_interface_metadata" {
-  count = "${length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)}"
+  count = length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
 
   filter {
     name   = "description"
@@ -64,7 +64,7 @@ data "aws_network_interface" "lb_eni_bgdc_interface_metadata" {
 
   filter {
     name   = "subnet-id"
-    values = ["${element(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids, count.index)}"]
+    values = [element(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids, count.index)]
   }
 }
 
