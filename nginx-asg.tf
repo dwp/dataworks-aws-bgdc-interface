@@ -15,17 +15,17 @@ data "aws_ami" "bgdc_nginx_latest" {
 }
 
 resource "aws_launch_configuration" "nginx_conf" {
-  name_prefix     = "dwx-bgdc-nginx-"
-  image_id        = data.aws_ami.bgdc_nginx_latest.id
-  instance_type   = "t2.medium"
-  security_groups = [aws_security_group.nginx-bgdc-dwx.id]
+  name_prefix          = "dwx-bgdc-nginx-"
+  image_id             = data.aws_ami.bgdc_nginx_latest.id
+  instance_type        = "t2.medium"
+  security_groups      = [aws_security_group.nginx-bgdc-dwx.id]
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
- 
-  
+
+
   user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = local.bgdc_dwx_listener[local.environment], BgdcDwxNginxDns = "localhost", BgdcDwxNginxPort = 400 })
 
   root_block_device {
-    volume_type           = "gp3"
+    volume_type = "gp3"
   }
 
   lifecycle {
@@ -74,18 +74,18 @@ resource "aws_lb" "dwx_bdgc_nginx_nlb" {
 }
 
 resource "aws_lb_target_group" "dwx_bdgc_nginx_nlb_tg" {
-  name     = "dwx-bgdc-nginx-nlb-tg"
-  port     = 400
-  protocol = "TCP"
+  name        = "dwx-bgdc-nginx-nlb-tg"
+  port        = 400
+  protocol    = "TCP"
   target_type = "instance"
-  vpc_id   = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  vpc_id      = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
 
   health_check {
-    port = 80
-    protocol          = "TCP"
-    healthy_threshold = 3
+    port                = 80
+    protocol            = "TCP"
+    healthy_threshold   = 3
     unhealthy_threshold = 3
-    interval = 30
+    interval            = 30
   }
 }
 
@@ -110,7 +110,7 @@ resource "aws_autoscaling_attachment" "asg_attachment_nginx_nlb" {
 resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
   acceptance_required        = false
   network_load_balancer_arns = [aws_lb.dwx_bdgc_nginx_nlb.arn]
-  allowed_principals = ["arn:aws:iam::${local.bgdc_account.test}:root"]
+  allowed_principals         = ["arn:aws:iam::${local.bgdc_account.test}:root"]
   tags = {
     Name = "bgdc-dwx-endpoint-svc"
   }
@@ -130,15 +130,15 @@ resource "aws_security_group" "nginx-bgdc-dwx" {
 
 
 resource "aws_security_group_rule" "allow_http_from_target_group" {
-  description              = "HTTP from target group"
-  from_port                = 80
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
-  to_port                  = 80
-  type                     = "ingress"
-  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
-    
-                             
+  description       = "HTTP from target group"
+  from_port         = 80
+  protocol          = "tcp"
+  security_group_id = aws_security_group.nginx-bgdc-dwx.id
+  to_port           = 80
+  type              = "ingress"
+  cidr_blocks       = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
+
+
 }
 
 
@@ -178,8 +178,8 @@ resource "aws_iam_role" "dwx_bgdc_nginx_instance_role" {
 }
 
 resource "aws_iam_instance_profile" "dwx_bgdc_nginx_instance_profile" {
-  name     = "dwx-bgdc-nginx-instance-profile"
-  role     = aws_iam_role.dwx_bgdc_nginx_instance_role.id
+  name = "dwx-bgdc-nginx-instance-profile"
+  role = aws_iam_role.dwx_bgdc_nginx_instance_role.id
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_nginx_for_ssm_attachment" {
