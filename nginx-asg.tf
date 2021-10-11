@@ -137,8 +137,6 @@ resource "aws_security_group_rule" "allow_http_from_target_group" {
   to_port           = 80
   type              = "ingress"
   cidr_blocks       = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
-
-
 }
 
 
