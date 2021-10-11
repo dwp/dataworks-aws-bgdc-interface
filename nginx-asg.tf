@@ -22,7 +22,7 @@ resource "aws_launch_configuration" "nginx_conf" {
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
  
   
-  user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = 400, BgdcDwxNginxDns = "localhost", BgdcDwxNginxPort = 400 })
+  user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = local.bgdc_dwx_listener[local.environment], BgdcDwxNginxDns = "localhost", BgdcDwxNginxPort = 400 })
 
   root_block_device {
     volume_type           = "gp3"
