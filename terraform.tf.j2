@@ -92,6 +92,12 @@ locals {
     {%- endfor %}
   }
 
+  bgdc_dwx_listener = {
+    {%- for environment, port in bgdc_dwx_listener.items() %}
+    {{ environment }} = {{ port }} 
+    {%- endfor %}
+  }
+
 }
 
 data "terraform_remote_state" "crypto" {
