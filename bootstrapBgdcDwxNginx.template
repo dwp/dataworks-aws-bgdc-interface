@@ -1,4 +1,13 @@
-#!/bin/bash
+#!/bin/bash -xe
+
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+
+cat >/home/ec2-user/files/nginx_vars.env<<EOF
+
+export NGINX_TEMPLATE_NAME=dwx_nginx.template
+
+export NGINX_PRIVATE_DNS="$(hostname -f)"
 
 export NGINX_LISTEN_PORT=${BgdcDwxListener}
 
@@ -6,16 +15,15 @@ export NGINX_DWX=${BgdcDwxNginxDns}
 
 export NGINX_DWX_PORT=${BgdcDwxNginxPort}
 
-export NGINX_TEMPLATE_NAME=dwx_nginx.template
+EOF
 
 
+sed -i '4i\source /home/ec2-user/files/nginx_vars.env\' /home/ec2-user/files/bootstrapDWX.template
 
-envsubst < /home/ec2-user/files/bootstrapDWX.template > /home/ec2-user/files/bootstrap.sh
+#envsubst < /home/ec2-user/files/bootstrapDWX.template > /home/ec2-user/files/bootstrap.sh
+
+cat /home/ec2-user/files/bootstrapDWX.template > /home/ec2-user/files/bootstrap.sh
 
 chmod u+x /home/ec2-user/files/bootstrap.sh
-
-systemctl stop httpd
-
-systemctl disable httpd 
 
 /home/ec2-user/files/bootstrap.sh
