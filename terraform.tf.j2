@@ -98,6 +98,12 @@ locals {
     {%- endfor %}
   }
 
+  bgdc_dwx_nginx_target = {
+    {%- for environment, port in bgdc_dwx_nginx_target.items() %}
+    {{ environment }} = {{ port }} 
+    {%- endfor %}
+  }
+
 }
 
 data "terraform_remote_state" "crypto" {
