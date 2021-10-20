@@ -22,7 +22,7 @@ resource "aws_launch_configuration" "nginx_conf" {
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
  
   
-  user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = local.bgdc_dwx_listener[local.environment], BgdcDwxNginxDns = "localhost", BgdcDwxNginxPort = 400 })
+  user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = local.bgdc_dwx_listener[local.environment], BgdcDwxNginxDns = "localhost", BgdcDwxNginxPort = local.bgdc_dwx_nginx_target[local.environment] })
 
   root_block_device {
     volume_type           = "gp3"
@@ -75,7 +75,7 @@ resource "aws_lb" "dwx_bdgc_nginx_nlb" {
 
 resource "aws_lb_target_group" "dwx_bdgc_nginx_nlb_tg" {
   name     = "dwx-bgdc-nginx-nlb-tg"
-  port     = 400
+  port     = local.bgdc_dwx_listener[local.environment]
   protocol = "TCP"
   target_type = "instance"
   vpc_id   = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
@@ -91,11 +91,44 @@ resource "aws_lb_target_group" "dwx_bdgc_nginx_nlb_tg" {
 
 resource "aws_lb_listener" "dwx_bdgc_nginx_nlb_listener" {
   load_balancer_arn = aws_lb.dwx_bdgc_nginx_nlb.arn
-  port              = "400"
+  port              = local.bgdc_dwx_listener[local.environment]
   protocol          = "TCP"
 
   default_action {
     target_group_arn = aws_lb_target_group.dwx_bdgc_nginx_nlb_tg.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_lb" "dwx_bdgc_nginx_emr_nlb" {
+  name               = "dwx-bgdc-nginx-emr-nlb"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
+
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = local.environment
+  }
+}
+
+resource "aws_lb_target_group" "dwx_bdgc_nginx_emr_nlb_tg" {
+  name     = "dwx-bgdc-nginx-emr-nlb-tg"
+  port     = local.bgdc_dwx_nginx_target[local.environment]
+  protocol = "TCP"
+  target_type = "instance"
+  vpc_id   = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+}
+
+resource "aws_lb_listener" "dwx_bdgc_nginx_emr_nlb_listener" {
+  load_balancer_arn = aws_lb.dwx_bdgc_nginx_emr_nlb.arn
+  port              = local.bgdc_dwx_nginx_target[local.environment]
+  protocol          = "TCP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.dwx_bdgc_nginx_emr_nlb_tg.arn
     type             = "forward"
   }
 }
