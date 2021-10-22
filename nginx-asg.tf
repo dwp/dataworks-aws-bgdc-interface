@@ -22,7 +22,7 @@ resource "aws_launch_configuration" "nginx_conf" {
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
  
   
-  user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = local.bgdc_dwx_listener[local.environment], BgdcDwxNginxDns = "localhost", BgdcDwxNginxPort = local.bgdc_dwx_nginx_target[local.environment] })
+  user_data = templatefile("bootstrapBgdcDwxNginx.template", { BgdcDwxListener = local.bgdc_dwx_listener[local.environment], BgdcDwxNginxDns = aws_lb.dwx_bdgc_nginx_emr_nlb.dns_name, BgdcDwxNginxPort = local.bgdc_dwx_nginx_target[local.environment] })
 
   root_block_device {
     volume_type           = "gp3"
@@ -43,7 +43,7 @@ resource "aws_autoscaling_group" "nginx_asg" {
   desired_capacity          = 2
   force_delete              = true
   launch_configuration      = aws_launch_configuration.nginx_conf.name
-  vpc_zone_identifier       = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
+  vpc_zone_identifier       = local.bgdc_private_subnets
   target_group_arns         = [aws_lb_target_group.dwx_bdgc_nginx_nlb_tg.arn]
 
   lifecycle {
@@ -63,8 +63,7 @@ resource "aws_lb" "dwx_bdgc_nginx_nlb" {
   name               = "dwx-bgdc-nginx-nlb"
   internal           = true
   load_balancer_type = "network"
-  subnets            = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
-
+  subnets            = local.bgdc_private_subnets
 
   enable_deletion_protection = false
 
@@ -100,6 +99,11 @@ resource "aws_lb_listener" "dwx_bdgc_nginx_nlb_listener" {
   }
 }
 
+resource "aws_autoscaling_attachment" "asg_attachment_nginx_nlb" {
+  autoscaling_group_name = aws_autoscaling_group.nginx_asg.id
+  alb_target_group_arn   = aws_lb_target_group.dwx_bdgc_nginx_nlb_tg.id
+}
+
 resource "aws_lb" "dwx_bdgc_nginx_emr_nlb" {
   name               = "dwx-bgdc-nginx-emr-nlb"
   internal           = true
@@ -133,13 +137,6 @@ resource "aws_lb_listener" "dwx_bdgc_nginx_emr_nlb_listener" {
   }
 }
 
-
-resource "aws_autoscaling_attachment" "asg_attachment_nginx_nlb" {
-  autoscaling_group_name = aws_autoscaling_group.nginx_asg.id
-  alb_target_group_arn   = aws_lb_target_group.dwx_bdgc_nginx_nlb_tg.id
-}
-
-
 resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
   acceptance_required        = false
   network_load_balancer_arns = [aws_lb.dwx_bdgc_nginx_nlb.arn]
@@ -148,11 +145,6 @@ resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
     Name = "bgdc-dwx-endpoint-svc"
   }
 }
-
-output "bgdc_dwx_vpc_endpoint_service_name" {
-  value = aws_vpc_endpoint_service.bgdc_dwx_end_point_service.service_name
-}
-
 
 resource "aws_security_group" "nginx-bgdc-dwx" {
   name                   = "nginx-bgdc-dwx-instances"
@@ -169,14 +161,11 @@ resource "aws_security_group_rule" "allow_http_from_target_group" {
   security_group_id        = aws_security_group.nginx-bgdc-dwx.id
   to_port                  = 80
   type                     = "ingress"
-  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])
-    
-                             
+  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
 }
 
-
 data "aws_network_interface" "dwx_bdgc_nlb_ni" {
-  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
+  for_each = toset(local.bgdc_private_subnets)
 
   filter {
     name   = "description"
@@ -188,8 +177,6 @@ data "aws_network_interface" "dwx_bdgc_nlb_ni" {
     values = [each.value]
   }
 }
-
-
 
 data "aws_iam_policy_document" "ec2_nginx_assume_role" {
   statement {
