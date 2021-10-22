@@ -240,7 +240,3 @@ resource "aws_security_group_rule" "hive_metastore_v2_from_bgdc" {
   security_group_id        = aws_security_group.bgdc_common.id
   source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
 }
-
-output "bgdc_common_sg_id" {
-  value = aws_security_group.bgdc_common.id
-}

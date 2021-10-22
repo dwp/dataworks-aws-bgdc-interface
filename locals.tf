@@ -219,4 +219,6 @@ locals {
     preprod     = ["127.0.0.1/32"] // Terraform won't accept "undef" as a CIDR value
     production  = ["127.0.0.1/32"] // Terraform won't accept "undef" as a CIDR value
   }
+
+  bgdc_private_subnets = [data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.subnets[index(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.subnets.*.availability_zone, "${data.aws_region.current.name}a")].id,data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.subnets[index(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.subnets.*.availability_zone, "${data.aws_region.current.name}b")].id]
 }
