@@ -140,7 +140,7 @@ resource "aws_lb_listener" "dwx_bdgc_nginx_emr_nlb_listener" {
 resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
   acceptance_required        = false
   network_load_balancer_arns = [aws_lb.dwx_bdgc_nginx_nlb.arn]
-  allowed_principals = ["arn:aws:iam::${local.bgdc_account.test}:root"]
+  allowed_principals = ["arn:aws:iam::${local.account[local.environment]}:root"]
   tags = {
     Name = "bgdc-dwx-endpoint-svc"
   }
