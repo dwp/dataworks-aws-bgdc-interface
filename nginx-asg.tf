@@ -60,7 +60,7 @@ resource "aws_autoscaling_group" "nginx_asg" {
 
 
 resource "aws_lb" "dwx_bdgc_nginx_nlb" {
-  name               = "dwx-bgdc-nginx-nlb"
+  name_prefix        = "dwx-bgdc-nginx-nlb-"
   internal           = true
   load_balancer_type = "network"
   subnets            = local.bgdc_private_subnets
