@@ -68,7 +68,7 @@ resource "aws_vpc_endpoint_service" "bgdc_tactical" {
   network_load_balancer_arns = [aws_lb.bgdc_tactical.arn]
   allowed_principals = [
     "arn:aws:iam::${local.account[local.environment]}:root",
-    "arn:aws:iam::${local.bgdc_account.test}:root",
+    "arn:aws:iam::${local.bgdc_account.development}:root",
   ]
 
   tags = merge(

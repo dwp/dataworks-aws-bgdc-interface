@@ -11,7 +11,7 @@ data "aws_ami" "bgdc_nginx_latest" {
     values = ["hvm"]
   }
 
-  owners = [local.bgdc_account.test]
+  owners = [local.bgdc_account.development]
 }
 
 resource "aws_launch_configuration" "nginx_conf" {
@@ -31,7 +31,6 @@ resource "aws_launch_configuration" "nginx_conf" {
   lifecycle {
     create_before_destroy = true
   }
-
 }
 
 resource "aws_autoscaling_group" "nginx_asg" {
@@ -55,20 +54,20 @@ resource "aws_autoscaling_group" "nginx_asg" {
     value               = "dwx-bgdc-nginx-instances"
     propagate_at_launch = true
   }
-
 }
 
-
 resource "aws_lb" "dwx_bdgc_nginx_nlb" {
-  name_prefix        = "dwx-"
+  name               = "dwx-bgdc-nginx-nlb"
   internal           = true
   load_balancer_type = "network"
   subnets            = local.bgdc_private_subnets
 
-  enable_deletion_protection = false
+  enable_deletion_protection = true
+
+  enable_cross_zone_load_balancing = true
 
   lifecycle {
-    create_before_destroy = true
+    prevent_destroy = true
   }
 
   tags = {
@@ -114,8 +113,13 @@ resource "aws_lb" "dwx_bdgc_nginx_emr_nlb" {
   load_balancer_type = "network"
   subnets            = data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids
 
+  enable_deletion_protection = true
 
-  enable_deletion_protection = false
+  enable_cross_zone_load_balancing = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 
   tags = {
     Environment = local.environment
@@ -144,7 +148,12 @@ resource "aws_lb_listener" "dwx_bdgc_nginx_emr_nlb_listener" {
 resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
   acceptance_required        = false
   network_load_balancer_arns = [aws_lb.dwx_bdgc_nginx_nlb.arn]
-  allowed_principals         = ["arn:aws:iam::${local.account[local.environment]}:root"]
+  allowed_principals         = ["arn:aws:iam::${local.bgdc_account[local.environment]}:root"]
+  
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = {
     Name = "bgdc-dwx-endpoint-svc"
   }
