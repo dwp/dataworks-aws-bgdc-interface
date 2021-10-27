@@ -67,7 +67,7 @@ resource "aws_lb" "dwx_bdgc_nginx_nlb" {
   enable_cross_zone_load_balancing = true
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   tags = {
