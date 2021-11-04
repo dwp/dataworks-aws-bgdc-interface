@@ -29,7 +29,7 @@ resource "aws_s3_bucket_object" "ghostunnel-setup" {
 resource "aws_s3_bucket_object" "emr-nlb-attachment" {
   //for_each = local.emr_clusters
   bucket   = data.terraform_remote_state.common.outputs.config_bucket.id
-  key      = "component/${local.component[each.key]}/emr-nlb-attachment.sh"
+  key      = "component/${local.component}/emr-nlb-attachment.sh"
   content = templatefile("${path.module}/steps/emr-nlb-attachment.tpl",
     {
       aws_default_region             = "eu-west-2"
