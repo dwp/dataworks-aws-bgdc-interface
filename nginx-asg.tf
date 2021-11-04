@@ -194,7 +194,7 @@ resource "aws_security_group_rule" "allow_nginx_egress_emr_port" {
   type              = "egress"
   protocol          = "tcp"
   //cidr_blocks       = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.cidr_block
-  cidr_block        = ["10.42.192.0/18"]
+  cidr_blocks        = ["10.42.192.0/18"]
   to_port           = local.bgdc_dwx_nginx_target[local.environment]
   from_port         = local.bgdc_dwx_nginx_target[local.environment]
   security_group_id = aws_security_group.nginx-bgdc-dwx.id
