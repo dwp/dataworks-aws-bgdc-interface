@@ -149,7 +149,7 @@ data "aws_iam_policy_document" "bgdc_interface_config" {
     ]
 
     resources = [
-      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn,
+      "${data.terraform_remote_state.common.outputs.config_bucket_cmk.arn}",
     ]
   }
 }
@@ -293,3 +293,26 @@ resource "aws_iam_role_policy_attachment" "bgdc_interface_metadata_change" {
   policy_arn = aws_iam_policy.bgdc_interface_metadata_change[each.key].arn
 }
 
+resource "aws_iam_policy" "bgdc_interface_nlb_target_group" {
+  for_each    = local.emr_clusters
+  name        = "${each.key}_NLBRegisterTargets"
+  description = "Allow nlb target group to register targets"
+  policy      = data.aws_iam_policy_document.bgdc_interface_nlb_target_group[each.key].json
+}
+
+data "aws_iam_policy_document" "bgdc_interface_nlb_target_group" {
+  for_each = local.emr_clusters
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:RegisterTargets"
+    ]
+
+    resources = [
+      aws_lb_target_group.dwx_bdgc_nginx_emr_nlb_tg.arn
+    ]
+  }
+}
