@@ -67,7 +67,7 @@ resource "aws_lb" "dwx_bdgc_nginx_nlb" {
   enable_cross_zone_load_balancing = true
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   tags = {
@@ -166,7 +166,6 @@ resource "aws_security_group" "nginx-bgdc-dwx" {
   vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
 }
 
-
 resource "aws_security_group_rule" "allow_http_from_target_group" {
   description              = "HTTP from target group"
   from_port                = 80
@@ -190,6 +189,49 @@ data "aws_network_interface" "dwx_bdgc_nlb_ni" {
     values = [each.value]
   }
 }
+
+resource "aws_security_group_rule" "allow_nginx_egress_emr_port" {
+  type              = "egress"
+  protocol          = "tcp"
+  cidr_blocks       = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.cidr_block
+  to_port           = local.bgdc_dwx_nginx_target[local.environment]
+  from_port         = local.bgdc_dwx_nginx_target[local.environment]
+  security_group_id = aws_security_group.nginx-bgdc-dwx.id
+}
+
+resource "aws_security_group_rule" "allow_nginx_egress_ssm" {
+  type              = "egress"
+  protocol          = "tcp"
+  cidr_blocks       = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.cidr_block
+  to_port           = 443
+  from_port         = 443
+  security_group_id = aws_security_group.nginx-bgdc-dwx.id
+}
+
+resource "aws_security_group_rule" "allow_nginx_from_nlb_target_group_to_emr" {
+  type                     = "ingress"
+  description              = "Allow nginx to EMR thru NLB"
+  protocol                 = "tcp"
+  from_port                = local.bgdc_dwx_nginx_target[local.environment]
+  to_port                  = local.bgdc_dwx_nginx_target[local.environment]
+  security_group_id        = aws_security_group.bgdc_master.id
+  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nginx_emr_nlb_ni : eni.private_ip])                             
+}
+
+data "aws_network_interface" "dwx_bdgc_nginx_emr_nlb_ni" {
+  for_each = toset(local.bgdc_private_subnets)
+
+  filter {
+    name   = "description"
+    values = ["ELB ${aws_lb.dwx_bdgc_nginx_emr_nlb.arn_suffix}"]
+  }
+
+  filter {
+    name   = "subnet-id"
+    values = [each.value]
+  }
+}
+
 
 data "aws_iam_policy_document" "ec2_nginx_assume_role" {
   statement {
