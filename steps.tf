@@ -27,9 +27,9 @@ resource "aws_s3_bucket_object" "ghostunnel-setup" {
 }
 
 resource "aws_s3_bucket_object" "emr-nlb-attachment" {
-  //for_each = local.emr_clusters
+  for_each = local.emr_clusters
   bucket   = data.terraform_remote_state.common.outputs.config_bucket.id
-  key      = "component/${local.component}/emr-nlb-attachment.sh"
+  key      = "component/${local.component[each.key]}/emr-nlb-attachment.sh"
   content = templatefile("${path.module}/steps/emr-nlb-attachment.tpl",
     {
       aws_default_region             = "eu-west-2"
@@ -37,6 +37,6 @@ resource "aws_s3_bucket_object" "emr-nlb-attachment" {
       full_no_proxy                  = local.no_proxy
       private_key_alias              = "private_key"
       artefact_bucket                = data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.id
-      target_group_arn               = aws_lb_target_group.dwx_bdgc_nginx_emr_nlb_tg.arn
+      target_group_arn               = aws_lb_target_group.dwx_bdgc_nginx_emr_nlb_tg[each.key].arn
   })
 }
