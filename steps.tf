@@ -37,6 +37,6 @@ resource "aws_s3_bucket_object" "emr-nlb-attachment" {
       full_no_proxy                  = local.no_proxy
       private_key_alias              = "private_key"
       artefact_bucket                = data.terraform_remote_state.management_mgmt.outputs.artefact_bucket.id
-      target_group_arn               = aws_lb_target_group.dwx_bdgc_nginx_emr_nlb_tg[each.key].arn
+      target_group_arn               = aws_lb_target_group.dwx_bdgc_nginx_emr_nlb_tg.arn
   })
 }
