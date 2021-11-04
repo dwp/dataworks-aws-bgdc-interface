@@ -19,3 +19,9 @@ Steps:
     - "s3://${s3_config_bucket}/component/${component}/ghostunnel-setup.sh"
     Jar: "s3://eu-west-2.elasticmapreduce/libs/script-runner/script-runner.jar"
   ActionOnFailure: "${action_on_failure}"
+- Name: "emr-nlb-attachment"
+  HadoopJarStep:
+    Args:
+    - "s3://${s3_config_bucket}/component/${component}/emr-nlb-attachment.sh"
+    Jar: "s3://eu-west-2.elasticmapreduce/libs/script-runner/script-runner.jar"
+  ActionOnFailure: "${action_on_failure}"  
