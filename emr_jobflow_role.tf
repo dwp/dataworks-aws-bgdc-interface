@@ -293,6 +293,13 @@ resource "aws_iam_role_policy_attachment" "bgdc_interface_metadata_change" {
   policy_arn = aws_iam_policy.bgdc_interface_metadata_change[each.key].arn
 }
 
+
+resource "aws_iam_role_policy_attachment" "bgdc_interface_nlb_target_group" {
+  for_each   = local.emr_clusters
+  role       = aws_iam_role.bgdc_interface[each.key].name
+  policy_arn = aws_iam_policy.bgdc_interface_nlb_target_group[each.key].arn
+}
+
 resource "aws_iam_policy" "bgdc_interface_nlb_target_group" {
   for_each    = local.emr_clusters
   name        = "${each.key}_NLBRegisterTargets"
