@@ -219,7 +219,7 @@ resource "aws_security_group_rule" "allow_nginx_from_nlb_target_group_to_emr" {
 }
 
 data "aws_network_interface" "dwx_bdgc_nginx_emr_nlb_ni" {
-  for_each = toset(local.bgdc_private_subnets)
+  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
 
   filter {
     name   = "description"
