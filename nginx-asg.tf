@@ -218,30 +218,16 @@ resource "aws_security_group_rule" "allow_nginx_egress_ssm" {
   security_group_id = aws_security_group.nginx-bgdc-dwx.id
 }
 
-resource "aws_security_group_rule" "allow_nginx_from_nlb_target_group_to_emr" {
+resource "aws_security_group_rule" "allow_nginx_subnet_from_nlb_to_emr" {
+  count                    = length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.cidr_blocks)
   type                     = "ingress"
-  description              = "Allow nginx to EMR thru NLB"
+  description              = "Allow nginx subnets"
   protocol                 = "tcp"
   from_port                = local.bgdc_dwx_nginx_target[local.environment]
   to_port                  = local.bgdc_dwx_nginx_target[local.environment]
   security_group_id        = aws_security_group.bgdc_master.id
-  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nginx_emr_nlb_ni : eni.private_ip])                             
+  cidr_blocks              = [data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.cidr_blocks[count.index]]                             
 }
-
-data "aws_network_interface" "dwx_bdgc_nginx_emr_nlb_ni" {
-  for_each = toset(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.ids)
-
-  filter {
-    name   = "description"
-    values = ["ELB ${aws_lb.dwx_bdgc_nginx_emr_nlb.arn_suffix}"]
-  }
-
-  filter {
-    name   = "subnet-id"
-    values = [each.value]
-  }
-}
-
 
 data "aws_iam_policy_document" "ec2_nginx_assume_role" {
   statement {
