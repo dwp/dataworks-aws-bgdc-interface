@@ -178,10 +178,10 @@ resource "aws_security_group_rule" "allow_http_from_target_group" {
 
 resource "aws_security_group_rule" "allow_bgdc_from_target_group" {
   description              = "Allow bgdc port from target group"
+  to_port                  = local.bgdc_dwx_listener[local.environment]
   from_port                = local.bgdc_dwx_listener[local.environment]
   protocol                 = "tcp"
   security_group_id        = aws_security_group.nginx-bgdc-dwx.id
-  to_port                  = local.bgdc_dwx_listener[local.environment]
   type                     = "ingress"
   cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
 }
