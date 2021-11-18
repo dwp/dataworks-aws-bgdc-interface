@@ -18,7 +18,6 @@ resource "aws_launch_configuration" "nginx_conf" {
   name_prefix     = "dwx-bgdc-nginx-"
   image_id        = data.aws_ami.bgdc_nginx_latest.id
   instance_type   = "t2.medium"
-  //security_groups = [aws_security_group.nginx-bgdc-dwx.id]
   security_groups = [data.terraform_remote_state.internal_compute.outputs.vpce_security_groups.nginx_asg_bgdc_dwx.id]
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
  
@@ -160,33 +159,6 @@ resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
   }
 }
 
-//resource "aws_security_group" "nginx-bgdc-dwx" {
-//  name                   = "nginx-bgdc-dwx-instances"
-//  description            = "Contains rules for nginx instances"
-//  revoke_rules_on_delete = true
-//  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-//}
-//
-//resource "aws_security_group_rule" "allow_http_from_target_group" {
-//  description              = "HTTP from target group"
-//  from_port                = 80
-//  protocol                 = "tcp"
-//  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
-//  to_port                  = 80
-//  type                     = "ingress"
-//  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
-//}
-//
-//resource "aws_security_group_rule" "allow_bgdc_from_target_group" {
-//  description              = "Allow bgdc port from target group"
-//  to_port                  = local.bgdc_dwx_listener[local.environment]
-//  from_port                = local.bgdc_dwx_listener[local.environment]
-//  protocol                 = "tcp"
-//  security_group_id        = aws_security_group.nginx-bgdc-dwx.id
-//  type                     = "ingress"
-//  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
-//}
-
 resource "aws_security_group_rule" "allow_http_from_target_group_vpce" {
   description              = "HTTP from target group"
   from_port                = 80
@@ -229,15 +201,6 @@ resource "aws_security_group_rule" "allow_nginx_egress_emr_port" {
   from_port         = local.bgdc_dwx_nginx_target[local.environment]
   security_group_id = data.terraform_remote_state.internal_compute.outputs.vpce_security_groups.nginx_asg_bgdc_dwx.id
 }
-
-//resource "aws_security_group_rule" "allow_nginx_egress_ssm" {
-//  type              = "egress"
-//  protocol          = "tcp"
-//  cidr_blocks       = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.cidr_block]
-//  to_port           = 443
-//  from_port         = 443
-//  security_group_id = aws_security_group.nginx-bgdc-dwx.id
-//}
 
 resource "aws_security_group_rule" "allow_nginx_subnet_from_nlb_to_emr" {
   count                    = length(data.terraform_remote_state.internal_compute.outputs.bgdc_subnet.cidr_blocks)
