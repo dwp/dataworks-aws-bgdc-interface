@@ -19,7 +19,7 @@ resource "aws_launch_configuration" "nginx_conf" {
   image_id        = data.aws_ami.bgdc_nginx_latest.id
   instance_type   = "t2.medium"
   //security_groups = [aws_security_group.nginx-bgdc-dwx.id]
-  security_groups = data.terraform_remote_state.internal_compute.outputs.vpce_security_groups.nginx_asg_bgdc_dwx.id
+  security_groups = [data.terraform_remote_state.internal_compute.outputs.vpce_security_groups.nginx_asg_bgdc_dwx.id]
   iam_instance_profile = aws_iam_instance_profile.dwx_bgdc_nginx_instance_profile.arn
  
   
