@@ -186,6 +186,26 @@ resource "aws_security_group_rule" "allow_bgdc_from_target_group" {
   cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
 }
 
+resource "aws_security_group_rule" "allow_http_from_target_group_vpce" {
+  description              = "HTTP from target group"
+  from_port                = 80
+  protocol                 = "tcp"
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.vpce_security_groups.nginx_asg_bgdc_dwx.id
+  to_port                  = 80
+  type                     = "ingress"
+  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
+}
+
+resource "aws_security_group_rule" "allow_bgdc_from_target_group_vpce" {
+  description              = "Allow bgdc port from target group"
+  to_port                  = local.bgdc_dwx_listener[local.environment]
+  from_port                = local.bgdc_dwx_listener[local.environment]
+  protocol                 = "tcp"
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.vpce_security_groups.nginx_asg_bgdc_dwx.id
+  type                     = "ingress"
+  cidr_blocks              = formatlist("%s/32", [for eni in data.aws_network_interface.dwx_bdgc_nlb_ni : eni.private_ip])                             
+}
+
 data "aws_network_interface" "dwx_bdgc_nlb_ni" {
   for_each = toset(local.bgdc_private_subnets)
 
