@@ -159,13 +159,6 @@ resource "aws_vpc_endpoint_service" "bgdc_dwx_end_point_service" {
   }
 }
 
-resource "aws_security_group" "nginx-bgdc-dwx" {
-  name                   = "nginx-bgdc-dwx-instances"
-  description            = "Contains rules for nginx instances"
-  revoke_rules_on_delete = true
-  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-}
-
 resource "aws_security_group_rule" "allow_http_from_target_group_vpce" {
   description              = "HTTP from target group"
   from_port                = 80
