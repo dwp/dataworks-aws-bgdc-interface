@@ -42,15 +42,13 @@ resource "aws_s3_bucket_object" "instances" {
 }
 
 resource "aws_s3_bucket_object" "steps" {
-  for_each = local.emr_clusters
-
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
   key    = "${local.emr_config_s3_prefix[each.key]}/steps.yaml"
   content = templatefile("${path.module}/cluster_config/steps.yaml.tpl",
     {
       s3_config_bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
       action_on_failure = local.step_fail_action[local.environment]
-      component         = local.component[each.key]
+      component         = local.component[bgdc_interface_metadata]
     }
   )
 }
