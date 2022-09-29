@@ -3,7 +3,7 @@ data "aws_ami" "bgdc_nginx_latest" {
 
   filter {
     name   = "name"
-    values = ["bgdc-nginx-ami-main-*"]
+    values = ["bgdc-nginx-main-*"]
   }
 
   filter {
