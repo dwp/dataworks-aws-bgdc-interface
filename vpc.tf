@@ -1,6 +1,6 @@
 module "profiling_vpc" {
   source                                   = "dwp/vpc/aws"
-  version                                  = "3.0.9"
+  version                                  = "3.0.15"
   vpc_name                                 = "profiling"
   region                                   = var.region
   vpc_cidr_block                           = local.cidr_block[local.environment].profiling-vpc
