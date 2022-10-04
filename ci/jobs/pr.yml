@@ -18,6 +18,7 @@ jobs:
         input_mapping:
           dataworks-aws-bgdc-interface: dataworks-aws-bgdc-interface-pr
         params:
+          TF_WORKSPACE: "qa"
           DETAILED_EXITCODE: ""
         on_failure:
           put: dataworks-aws-bgdc-interface-pr
