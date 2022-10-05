@@ -211,7 +211,7 @@ resource "aws_launch_template" "profiling_node" {
 }
 
 resource "aws_autoscaling_group" "profiling_node" {
-  name                      = aws_launch_template.profiling_node.name
+  name                      = "profiling_node_${aws_launch_template.profiling_node.latest_version}"
   min_size                  = 0
   desired_capacity          = 1
   max_size                  = 1
