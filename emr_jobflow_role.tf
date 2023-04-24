@@ -27,7 +27,7 @@ resource "aws_iam_instance_profile" "bgdc_interface" {
 resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
   for_each   = local.emr_clusters
   role       = aws_iam_role.bgdc_interface[each.key].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {

@@ -158,7 +158,7 @@ resource "aws_iam_role_policy_attachment" "profiling_node_cwasp" {
 
 resource "aws_iam_role_policy_attachment" "profiling_node_ssm" {
   role       = aws_iam_role.profiling_node.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_launch_template" "profiling_node" {
