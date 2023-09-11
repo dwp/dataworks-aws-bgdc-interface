@@ -1,3 +1,5 @@
+# DO NOT USE THIS REPO - MIGRATED TO GITLAB
+
 # DataWorks interface for BGDC (Business Glossary & Data Catalog)
 
 BGDC Interface provides a Hive endpoint for data and metadata stored in DataWorks.
